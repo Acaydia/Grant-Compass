@@ -1,12 +1,13 @@
 // api/search.js — Grant Discovery proxy
-// Model: claude-haiku-4-5-20251001 (fast + cheap for structured data)
+// Step 1: Tavily live web search for real grant data
+// Step 2: Claude Haiku structures the results into cards
 // Rate limit: 3 searches per IP per hour
 
 const https = require("https");
 
-// In-memory rate limiter (resets on cold start — good enough for low-traffic nonprofit tool)
+// ── Rate limiter ─────────────────────────────────────────────────────────────
 const rateLimits = new Map();
-const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_WINDOW = 3;
 
 function checkRate(ip) {
@@ -21,19 +22,19 @@ function checkRate(ip) {
   return true;
 }
 
-function anthropicPost(body) {
+// ── HTTP helpers ──────────────────────────────────────────────────────────────
+function postJSON(hostname, path, headers, body) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify(body);
     const req = https.request(
       {
-        hostname: "api.anthropic.com",
-        path: "/v1/messages",
+        hostname,
+        path,
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": process.env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
           "Content-Length": Buffer.byteLength(payload),
+          ...headers,
         },
       },
       (res) => {
@@ -43,7 +44,7 @@ function anthropicPost(body) {
           try {
             resolve({ status: res.statusCode, body: JSON.parse(data) });
           } catch {
-            reject(new Error("Invalid JSON from Anthropic"));
+            reject(new Error("Invalid JSON response"));
           }
         });
       }
@@ -54,6 +55,36 @@ function anthropicPost(body) {
   });
 }
 
+function tavilySearch(query, extraParams = {}) {
+  return postJSON(
+    "api.tavily.com",
+    "/search",
+    {},
+    {
+      api_key: process.env.TAVILY_API_KEY,
+      query,
+      search_depth: "advanced",
+      max_results: 8,
+      include_answer: false,
+      include_raw_content: false,
+      ...extraParams,
+    }
+  );
+}
+
+function anthropicPost(body) {
+  return postJSON(
+    "api.anthropic.com",
+    "/v1/messages",
+    {
+      "x-api-key": process.env.ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body
+  );
+}
+
+// ── Grant schema tool ─────────────────────────────────────────────────────────
 const TOOL = {
   name: "return_grants",
   description: "Return a list of real U.S. funding opportunities matching the user profile.",
@@ -94,6 +125,7 @@ const TOOL = {
   },
 };
 
+// ── Handler ───────────────────────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -121,9 +153,51 @@ module.exports = async function handler(req, res) {
 
   const loc    = answers.location  || "rural United States";
   const cause  = answers.cause     || "community support";
-  const struct = answers.structure || "any organization type";
+  const struct = answers.structure || "nonprofit";
   const amt    = answers.amount    || "any amount";
 
+  // ── Step 1: Live web search via Tavily ───────────────────────────────────
+  let webContext = "";
+
+  if (process.env.TAVILY_API_KEY) {
+    try {
+      // Run 3 targeted searches in parallel for breadth
+      const [localRes, federalRes, foundationRes] = await Promise.allSettled([
+        tavilySearch(
+          `grants for ${struct} ${cause} in ${loc} 2024 2025 apply deadline`,
+          { include_domains: ["grants.gov", "usda.gov", "hhs.gov", "americorps.gov", "arts.gov", "arc.gov", "dra.gov"] }
+        ),
+        tavilySearch(
+          `community foundation grants ${loc} ${cause} nonprofit funding 2025`
+        ),
+        tavilySearch(
+          `private foundation grants ${cause} ${struct} rural faith-based small nonprofit 2025`
+        ),
+      ]);
+
+      const snippets = [];
+
+      for (const result of [localRes, federalRes, foundationRes]) {
+        if (result.status === "fulfilled" && result.value.status === 200) {
+          const items = result.value.body.results || [];
+          for (const item of items) {
+            if (item.title && item.content) {
+              snippets.push(`SOURCE: ${item.url}\nTITLE: ${item.title}\nSNIPPET: ${item.content.slice(0, 600)}`);
+            }
+          }
+        }
+      }
+
+      if (snippets.length > 0) {
+        webContext = `\n\nLIVE WEB SEARCH RESULTS (use these as primary sources — extract real grant names, orgs, deadlines, amounts):\n\n${snippets.join("\n\n---\n\n")}`;
+      }
+    } catch (searchErr) {
+      // Tavily failed — continue without it, Claude will use training knowledge
+      console.error("Tavily search failed:", searchErr.message);
+    }
+  }
+
+  // ── Step 2: Claude structures the results ────────────────────────────────
   const prompt = `Find 20 real U.S. funding opportunities for:
 
 - Cause: ${cause}
@@ -137,12 +211,14 @@ Include this mix:
 - 5 PRIVATE FOUNDATIONS and faith-based funders matching the cause
 - 4 MICROGRANTS, fellowships, or donor platforms
 
-Use real funder names. Set gem:true for lesser-known sources. Keep desc to one clear sentence about why it fits.`;
+IMPORTANT: Use the live web search results below as your PRIMARY source — extract real grant names, real organizations, real deadlines, and real award amounts from those pages. Only fall back to training knowledge if the search results don't cover a category.
+
+Use real funder names only. Set gem:true for lesser-known sources. Keep desc to one clear sentence about why it fits this organization.${webContext}`;
 
   try {
     const { status, body } = await anthropicPost({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 4000,
+      max_tokens: 4096,
       tools: [TOOL],
       tool_choice: { type: "tool", name: "return_grants" },
       messages: [{ role: "user", content: prompt }],
@@ -159,7 +235,10 @@ Use real funder names. Set gem:true for lesser-known sources. Keep desc to one c
       return res.status(500).json({ error: "No grant data returned — please try again" });
     }
 
-    return res.status(200).json({ grants: toolBlock.input.grants });
+    return res.status(200).json({
+      grants: toolBlock.input.grants,
+      webSearched: !!webContext,  // tells the UI whether live data was used
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message || "Search failed" });
   }
