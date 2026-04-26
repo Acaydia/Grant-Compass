@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "functions": {
+    "api/search.js":          { "maxDuration": 30 },
+    "api/write.js":           { "maxDuration": 30 },
+    "api/daily-plan.js":      { "maxDuration": 45 },
+    "api/search-funders.js":  { "maxDuration": 30 },
+    "api/write-document.js":  { "maxDuration": 45 },
+    "api/analyze-funder.js":  { "maxDuration": 45 }
+  }
+}

@@ -386,6 +386,149 @@ function DailyPlan({profile,funders,events}){
 /* ═══════════════════════════════════════════════════════════════════════════
    FUNDERS PIPELINE
    ═══════════════════════════════════════════════════════════════════════════ */
+function CompetitiveBriefModal({brief, funderName, onClose}){
+  if(!brief) return null;
+  const alignColor = brief.alignment?.score==="strong"?C.green:brief.alignment?.score==="moderate"?C.amber:C.red;
+  const alignBg = brief.alignment?.score==="strong"?C.greenL:brief.alignment?.score==="moderate"?C.amberL:C.redL;
+  const Section = ({title, children}) => (
+    <div style={{marginBottom:20}}>
+      <div style={{fontWeight:700,fontSize:13,color:C.navy,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>{title}</div>
+      {children}
+    </div>
+  );
+  const Pill = ({text,color}) => <span style={{display:"inline-block",background:color+"22",color,border:`1px solid ${color}44`,borderRadius:20,padding:"3px 12px",fontSize:12,fontWeight:600,marginRight:6,marginBottom:6}}>{text}</span>;
+  const Row = ({label,value}) => value ? <div style={{display:"flex",gap:8,marginBottom:6,fontSize:13}}><span style={{color:C.muted,minWidth:120,flexShrink:0}}>{label}</span><span style={{color:C.text,fontWeight:500}}>{value}</span></div> : null;
+
+  return (
+    <div style={{position:"fixed",inset:0,background:"rgba(10,15,30,0.7)",zIndex:1000,display:"flex",alignItems:"flex-start",justifyContent:"center",overflowY:"auto",padding:"40px 16px"}}>
+      <div style={{background:C.white,borderRadius:16,width:"100%",maxWidth:760,boxShadow:"0 24px 80px rgba(0,0,0,0.3)"}}>
+        {/* Header */}
+        <div style={{background:`linear-gradient(135deg,${C.navy},${C.navyXL})`,borderRadius:"16px 16px 0 0",padding:"24px 28px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div>
+            <div style={{fontSize:11,color:C.gold,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>Competitive Intelligence Brief</div>
+            <div style={{fontSize:20,fontWeight:800,color:C.white}}>{funderName}</div>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <div style={{background:alignBg,border:`2px solid ${alignColor}`,borderRadius:8,padding:"6px 16px",textAlign:"center"}}>
+              <div style={{fontSize:10,color:alignColor,fontWeight:700,textTransform:"uppercase"}}>Alignment</div>
+              <div style={{fontSize:16,color:alignColor,fontWeight:800,textTransform:"capitalize"}}>{brief.alignment?.score}</div>
+            </div>
+            <button onClick={onClose} style={{background:"rgba(255,255,255,0.15)",border:"none",color:C.white,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:14,fontWeight:600}}>✕ Close</button>
+          </div>
+        </div>
+
+        <div style={{padding:"28px 28px 32px"}}>
+          {/* Executive Summary */}
+          {brief.executiveSummary && (
+            <div style={{background:C.blueL,border:`1px solid ${C.blue}44`,borderRadius:10,padding:16,marginBottom:24,fontSize:14,lineHeight:1.7,color:C.navy,fontStyle:"italic"}}>
+              "{brief.executiveSummary}"
+            </div>
+          )}
+
+          {/* Funder Snapshot */}
+          <Section title="📊 Funder Snapshot">
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+              <Row label="Est. Grant Range" value={brief.funderSnapshot?.grantRange || brief.funderSnapshot?.estimatedGrant}/>
+              <Row label="Geographic Focus" value={brief.funderSnapshot?.geographicFocus}/>
+              <Row label="Grant Cycle" value={brief.funderSnapshot?.grantCycle}/>
+              <Row label="Application Process" value={brief.funderSnapshot?.applicationProcess}/>
+            </div>
+            {brief.funderSnapshot?.knownPriorities && <div style={{marginTop:8,fontSize:13,color:C.text,lineHeight:1.6}}><strong>Known Priorities:</strong> {brief.funderSnapshot.knownPriorities}</div>}
+          </Section>
+
+          {/* What Wins With This Funder */}
+          <Section title="🏆 What Wins With This Funder">
+            {brief.fundedOrgProfile?.whatWins && <div style={{fontSize:13,lineHeight:1.7,color:C.text,marginBottom:10}}>{brief.fundedOrgProfile.whatWins}</div>}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginTop:6}}>
+              <Row label="Typical Missions" value={brief.fundedOrgProfile?.typicalMissions}/>
+              <Row label="Budget Range" value={brief.fundedOrgProfile?.typicalBudgetRange}/>
+              <Row label="Faith Pattern" value={brief.fundedOrgProfile?.faithPattern}/>
+              <Row label="Geography" value={brief.fundedOrgProfile?.geographicPattern}/>
+            </div>
+          </Section>
+
+          {/* Alignment */}
+          <Section title="🎯 Your Competitive Position">
+            <div style={{marginBottom:12}}>
+              <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginBottom:10}}>{brief.alignment?.scoreRationale}</div>
+              {brief.alignment?.strengths?.length>0 && (
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:12,fontWeight:700,color:C.green,marginBottom:6}}>✓ STRENGTHS</div>
+                  {brief.alignment.strengths.map((s,i)=><div key={i} style={{fontSize:13,color:C.text,marginBottom:4,paddingLeft:12}}>· {s}</div>)}
+                </div>
+              )}
+              {brief.alignment?.uniqueDifferentiators?.length>0 && (
+                <div style={{marginBottom:10}}>
+                  <div style={{fontSize:12,fontWeight:700,color:C.gold,marginBottom:6}}>⭐ DIFFERENTIATORS — LEAD WITH THESE</div>
+                  {brief.alignment.uniqueDifferentiators.map((d,i)=><div key={i} style={{fontSize:13,color:C.text,marginBottom:4,paddingLeft:12,fontWeight:600}}>· {d}</div>)}
+                </div>
+              )}
+              {brief.alignment?.concerns?.length>0 && (
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:C.red,marginBottom:6}}>⚠ WATCH POINTS</div>
+                  {brief.alignment.concerns.map((c,i)=><div key={i} style={{fontSize:13,color:C.text,marginBottom:4,paddingLeft:12}}>· {c}</div>)}
+                </div>
+              )}
+            </div>
+          </Section>
+
+          {/* Messaging Blueprint */}
+          <Section title="✍️ Messaging Blueprint">
+            {brief.messagingBlueprint?.openingHook && (
+              <div style={{background:C.goldL,border:`1px solid ${C.gold}`,borderRadius:8,padding:14,marginBottom:14}}>
+                <div style={{fontSize:11,fontWeight:700,color:C.goldD,textTransform:"uppercase",marginBottom:6}}>Opening Hook — Copy This</div>
+                <div style={{fontSize:14,color:C.navy,lineHeight:1.7,fontStyle:"italic"}}>"{brief.messagingBlueprint.openingHook}"</div>
+              </div>
+            )}
+            {brief.messagingBlueprint?.framingStrategy && (
+              <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginBottom:12}}><strong>Framing Strategy:</strong> {brief.messagingBlueprint.framingStrategy}</div>
+            )}
+            <Row label="Recommended Ask" value={brief.messagingBlueprint?.recommendedAsk}/>
+            <Row label="Tone" value={brief.messagingBlueprint?.toneGuidance}/>
+            {brief.messagingBlueprint?.keyPhrases?.length>0 && (
+              <div style={{marginTop:10}}>
+                <div style={{fontSize:12,fontWeight:700,color:C.navy,marginBottom:8}}>KEY PHRASES TO USE:</div>
+                <div>{brief.messagingBlueprint.keyPhrases.map((p,i)=><Pill key={i} text={p} color={C.green}/>)}</div>
+              </div>
+            )}
+            {brief.messagingBlueprint?.metricsToLead?.length>0 && (
+              <div style={{marginTop:10}}>
+                <div style={{fontSize:12,fontWeight:700,color:C.navy,marginBottom:8}}>LEAD WITH THESE METRICS:</div>
+                <div>{brief.messagingBlueprint.metricsToLead.map((m,i)=><Pill key={i} text={m} color={C.blue}/>)}</div>
+              </div>
+            )}
+            {brief.messagingBlueprint?.thingsToAvoid?.length>0 && (
+              <div style={{marginTop:10}}>
+                <div style={{fontSize:12,fontWeight:700,color:C.red,marginBottom:8}}>AVOID:</div>
+                <div>{brief.messagingBlueprint.thingsToAvoid.map((a,i)=><Pill key={i} text={a} color={C.red}/>)}</div>
+              </div>
+            )}
+          </Section>
+
+          {/* Relationship Strategy */}
+          <Section title="🤝 Relationship Strategy">
+            <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginBottom:8}}>{brief.relationshipStrategy?.approach}</div>
+            <Row label="Timeline" value={brief.relationshipStrategy?.timeline}/>
+            {brief.relationshipStrategy?.warmPathNotes && <div style={{fontSize:13,color:C.text,lineHeight:1.6,marginTop:4}}><strong>Warm Path:</strong> {brief.relationshipStrategy.warmPathNotes}</div>}
+            {brief.relationshipStrategy?.nextImmediateAction && (
+              <div style={{background:C.greenL,border:`1px solid ${C.green}44`,borderRadius:8,padding:12,marginTop:12}}>
+                <div style={{fontSize:11,fontWeight:700,color:C.green,marginBottom:4}}>NEXT ACTION</div>
+                <div style={{fontSize:13,color:C.text,fontWeight:600}}>{brief.relationshipStrategy.nextImmediateAction}</div>
+              </div>
+            )}
+          </Section>
+
+          {brief.competitiveRisk && (
+            <Section title="⚔️ Competitive Risk">
+              <div style={{fontSize:13,color:C.text,lineHeight:1.6}}>{brief.competitiveRisk}</div>
+            </Section>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FundersPipeline({funders,setFunders,setTasks,tasks}){
   const [search,setSearch]=useState("");
   const [showAdd,setShowAdd]=useState(false);
@@ -393,6 +536,9 @@ function FundersPipeline({funders,setFunders,setTasks,tasks}){
   const [discovered,setDiscovered]=useState([]);
   const [newF,setNewF]=useState({name:"",type:"Private",stage:"prospect",ask:"",deadline:"",notes:"",priority:"medium",catholic:false,contact:""});
   const [activeStage,setActiveStage]=useState("all");
+  const [analyzing,setAnalyzing]=useState(null);
+  const [activeBrief,setActiveBrief]=useState(null);
+  const [briefFunderName,setBriefFunderName]=useState("");
 
   const stages=["prospect","active","submitted","won","lost"];
   const filtered=funders.filter(f=>{
@@ -434,8 +580,22 @@ function FundersPipeline({funders,setFunders,setTasks,tasks}){
   const updateStage=(id,stage)=>setFunders(prev=>prev.map(f=>f.id===id?{...f,stage}:f));
   const deleteFunder=(id)=>setFunders(prev=>prev.filter(f=>f.id!==id));
 
+  const analyzeFunder=async(f)=>{
+    setAnalyzing(f.id);
+    try{
+      const res=await fetch("/api/analyze-funder",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({funder:f,profile:null})
+      });
+      const data=await res.json();
+      if(data.brief){ setActiveBrief(data.brief); setBriefFunderName(f.name); }
+    }catch(e){ alert("Analysis failed. Please try again."); }
+    setAnalyzing(null);
+  };
+
   return (
     <div>
+      {activeBrief&&<CompetitiveBriefModal brief={activeBrief} funderName={briefFunderName} onClose={()=>setActiveBrief(null)}/>}
       {/* Header */}
       <div style={{display:"flex",gap:10,marginBottom:20,flexWrap:"wrap",alignItems:"center"}}>
         <input style={input({flex:1,minWidth:200})} placeholder="Search funders..." value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -525,6 +685,14 @@ function FundersPipeline({funders,setFunders,setTasks,tasks}){
                 <select style={{...input({width:"auto",padding:"4px 8px",fontSize:12}),cursor:"pointer"}} value={f.stage} onChange={e=>updateStage(f.id,e.target.value)}>
                   {stages.map(s=><option key={s} value={s}>{s}</option>)}
                 </select>
+                <button
+                  style={{...btn("navy",{padding:"5px 12px",fontSize:12}),opacity:analyzing===f.id?0.6:1}}
+                  onClick={()=>analyzeFunder(f)}
+                  disabled={analyzing===f.id}
+                  title="Run competitive intelligence analysis using 990-PF data + AI"
+                >
+                  {analyzing===f.id?"⏳ Analyzing...":"🧠 Analyze"}
+                </button>
                 <button style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:12}} onClick={()=>deleteFunder(f.id)}>✕ Remove</button>
               </div>
             </div>

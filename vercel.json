@@ -8,6 +8,7 @@
     "api/write.js":           { "maxDuration": 30 },
     "api/daily-plan.js":      { "maxDuration": 45 },
     "api/search-funders.js":  { "maxDuration": 30 },
-    "api/write-document.js":  { "maxDuration": 45 }
+    "api/write-document.js":  { "maxDuration": 45 },
+    "api/analyze-funder.js":  { "maxDuration": 45 }
   }
 }
