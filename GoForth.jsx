@@ -518,6 +518,68 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
             )}
           </Section>
 
+          {/* Donor Preferences */}
+          {brief.donorPreferences && (
+            <Section title="💡 Donor Preference Patterns">
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                <Row label="Typical Grant Size" value={brief.donorPreferences?.typicalGrantSize}/>
+                <Row label="Preferred Org Type" value={brief.donorPreferences?.preferredOrgCharacteristics}/>
+              </div>
+              {brief.donorPreferences?.topFundingPatterns && (
+                <div style={{marginTop:10,padding:"12px 14px",background:C.blueL,borderRadius:8,fontSize:13,color:C.navy,lineHeight:1.6}}>
+                  <strong>Top Funding Patterns:</strong> {brief.donorPreferences.topFundingPatterns}
+                </div>
+              )}
+              {brief.donorPreferences?.keyDonorTriggers && (
+                <div style={{marginTop:8,padding:"12px 14px",background:C.greenL,borderRadius:8,fontSize:13,color:C.text,lineHeight:1.6}}>
+                  <strong>What Makes Them Say Yes:</strong> {brief.donorPreferences.keyDonorTriggers}
+                </div>
+              )}
+              {brief.donorPreferences?.avoidancePatterns && (
+                <div style={{marginTop:8,padding:"12px 14px",background:C.redL,borderRadius:8,fontSize:13,color:C.text,lineHeight:1.6}}>
+                  <strong>What They Avoid:</strong> {brief.donorPreferences.avoidancePatterns}
+                </div>
+              )}
+              {brief.donorPreferences?.repeatGranteeNotes && (
+                <div style={{marginTop:8,fontSize:13,color:C.muted,lineHeight:1.5,fontStyle:"italic"}}>{brief.donorPreferences.repeatGranteeNotes}</div>
+              )}
+            </Section>
+          )}
+
+          {/* Board / Leadership Intel */}
+          {brief.boardProfile && (
+            <Section title={`👥 Board & Leadership Intel ${brief.boardProfile?.dataQuality==="minimal"?"(Limited Data)":brief.boardProfile?.dataQuality==="partial"?"(Partial Data)":"(Rich Data)"}`}>
+              {brief.boardProfile?.dataQuality==="minimal" ? (
+                <div style={{fontSize:13,color:C.muted,fontStyle:"italic",marginBottom:12}}>Limited public data found for this funder's leadership. Hooks below are inferred from funder type and mission.</div>
+              ) : (
+                <>
+                  {brief.boardProfile?.keyLeaders && (
+                    <div style={{marginBottom:10,fontSize:13,color:C.text,lineHeight:1.6}}><strong>Key Leaders:</strong> {brief.boardProfile.keyLeaders}</div>
+                  )}
+                  {brief.boardProfile?.leaderInsights && (
+                    <div style={{marginBottom:10,padding:"12px 14px",background:C.amberL,borderRadius:8,fontSize:13,color:C.text,lineHeight:1.6}}>
+                      <strong>Leadership Insights:</strong> {brief.boardProfile.leaderInsights}
+                    </div>
+                  )}
+                  {brief.boardProfile?.networkConnections && (
+                    <div style={{fontSize:13,color:C.text,lineHeight:1.5,marginBottom:10}}><strong>Network Connections:</strong> {brief.boardProfile.networkConnections}</div>
+                  )}
+                </>
+              )}
+              {brief.boardProfile?.messagingHooks?.length > 0 && (
+                <div style={{marginTop:8}}>
+                  <div style={{fontSize:12,fontWeight:700,color:C.navy,marginBottom:8}}>LEADERSHIP-TAILORED MESSAGING HOOKS:</div>
+                  {brief.boardProfile.messagingHooks.map((h,i)=>(
+                    <div key={i} style={{display:"flex",gap:10,marginBottom:8,padding:"10px 12px",background:C.bg,borderRadius:8,borderLeft:`3px solid ${C.gold}`}}>
+                      <span style={{color:C.gold,fontWeight:800,fontSize:14,flexShrink:0}}>→</span>
+                      <span style={{fontSize:13,color:C.text,lineHeight:1.5}}>{h}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
+          )}
+
           {brief.competitiveRisk && (
             <Section title="⚔️ Competitive Risk">
               <div style={{fontSize:13,color:C.text,lineHeight:1.6}}>{brief.competitiveRisk}</div>
@@ -529,7 +591,7 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
   );
 }
 
-function FundersPipeline({funders,setFunders,setTasks,tasks}){
+function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
   const [search,setSearch]=useState("");
   const [showAdd,setShowAdd]=useState(false);
   const [discovering,setDiscovering]=useState(false);
@@ -585,7 +647,7 @@ function FundersPipeline({funders,setFunders,setTasks,tasks}){
     try{
       const res=await fetch("/api/analyze-funder",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({funder:f,profile:null})
+        body:JSON.stringify({funder:f,profile:profile||null})
       });
       const data=await res.json();
       if(data.brief){ setActiveBrief(data.brief); setBriefFunderName(f.name); }
@@ -1197,9 +1259,13 @@ function DonorHub(){
 /* ═══════════════════════════════════════════════════════════════════════════
    SETTINGS
    ═══════════════════════════════════════════════════════════════════════════ */
-function Settings({profile,setProfile}){
+function Settings({profile,setProfile,profiles,setProfiles,activeProfileId,setActiveProfileId,addProfile,deleteProfile}){
   const [local,setLocal]=useState(profile);
   const [saved,setSaved]=useState(false);
+
+  // Sync local state when active profile changes externally
+  const [lastProfileId,setLastProfileId]=useState(profile.id);
+  if(profile.id!==lastProfileId){setLocal(profile);setLastProfileId(profile.id);}
 
   const save_=()=>{setProfile(local);setSaved(true);setTimeout(()=>setSaved(false),2000);};
 
@@ -1215,6 +1281,31 @@ function Settings({profile,setProfile}){
 
   return (
     <div>
+      {/* ── Multi-org profile switcher ─────────────────────────────────── */}
+      <div style={card({background:`linear-gradient(135deg,${C.navy},${C.navyXL})`,color:C.white,marginBottom:16})}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+          <div>
+            <div style={{fontSize:11,color:"#aabbd4",textTransform:"uppercase",letterSpacing:1,marginBottom:4}}>Organization Profiles</div>
+            <div style={{fontSize:18,fontWeight:800,color:C.gold}}>{profiles.length} Profile{profiles.length!==1?"s":""} Configured</div>
+          </div>
+          <button style={btn("primary")} onClick={addProfile}>+ Add Organization</button>
+        </div>
+        {profiles.length>1&&(
+          <div style={{display:"flex",gap:8,marginTop:14,flexWrap:"wrap"}}>
+            {profiles.map(p=>(
+              <button key={p.id} style={{
+                padding:"6px 14px",borderRadius:20,fontSize:12,fontWeight:600,cursor:"pointer",
+                background:p.id===activeProfileId?C.gold:"rgba(255,255,255,0.1)",
+                color:p.id===activeProfileId?C.navy:C.white,
+                border:p.id===activeProfileId?"none":"1px solid rgba(255,255,255,0.2)"
+              }} onClick={()=>setActiveProfileId(p.id)}>
+                {p.name.slice(0,24)}{p.name.length>24?"...":""}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div style={card()}>
         <div style={{fontWeight:700,fontSize:18,color:C.navy,marginBottom:4}}>Organization Profile</div>
         <div style={{fontSize:13,color:C.muted,marginBottom:20}}>This profile powers all daily plans, grant applications, and AI-generated documents.</div>
@@ -1264,9 +1355,17 @@ function Settings({profile,setProfile}){
           </label>
         </div>
 
-        <button style={btn("primary",{padding:"12px 24px",fontSize:14})} onClick={save_}>
-          {saved?"✓ Saved!":"Save Profile"}
-        </button>
+        <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
+          <button style={btn("primary",{padding:"12px 24px",fontSize:14})} onClick={save_}>
+            {saved?"✓ Saved!":"Save Profile"}
+          </button>
+          {profiles.length>1&&(
+            <button style={{...btn("outline",{padding:"12px 24px",fontSize:14}),color:C.red,borderColor:C.red}}
+              onClick={()=>{if(window.confirm(`Delete "${profile.name}"? This cannot be undone.`))deleteProfile(profile.id);}}>
+              🗑 Delete This Profile
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1277,12 +1376,47 @@ function Settings({profile,setProfile}){
    ═══════════════════════════════════════════════════════════════════════════ */
 export default function GoForth(){
   const [tab,setTab]=useState("dashboard");
-  const [profile,setProfile_]=useState(()=>load("goforth_profile",DEF_PROFILE));
+
+  // ── Multi-org profile system ──────────────────────────────────────────────
+  const [profiles,setProfiles_]=useState(()=>{
+    const stored=load("goforth_profiles",null);
+    if(stored&&stored.length>0) return stored;
+    // Migrate legacy single profile if present
+    const legacy=load("goforth_profile",null);
+    const base=legacy||DEF_PROFILE;
+    return [{...base,id:base.id||uid()}];
+  });
+  const [activeProfileId,setActiveProfileId_]=useState(()=>{
+    const stored=load("goforth_active_profile_id",null);
+    return stored;
+  });
+
+  const profile=profiles.find(p=>p.id===activeProfileId)||profiles[0];
+  const setProfiles=v=>{setProfiles_(v);save("goforth_profiles",v);};
+  const setActiveProfileId=id=>{setActiveProfileId_(id);save("goforth_active_profile_id",id);};
+  const setProfile=v=>{
+    const updated=profiles.map(p=>p.id===profile.id?{...v,id:p.id}:p);
+    setProfiles(updated);
+  };
+  const addProfile=()=>{
+    const newId=uid();
+    const newProf={...DEF_PROFILE,id:newId,name:"New Organization",ein:"",founded:""};
+    setProfiles([...profiles,newProf]);
+    setActiveProfileId(newId);
+    setTab("settings");
+  };
+  const deleteProfile=(id)=>{
+    if(profiles.length<=1){alert("You must have at least one organization profile.");return;}
+    const remaining=profiles.filter(p=>p.id!==id);
+    setProfiles(remaining);
+    setActiveProfileId(remaining[0].id);
+  };
+  // ─────────────────────────────────────────────────────────────────────────
+
   const [funders,setFunders_]=useState(()=>load("goforth_funders",DEF_FUNDERS));
   const [tasks,setTasks_]=useState(()=>load("goforth_tasks",DEF_TASKS));
   const [events,setEvents_]=useState(()=>load("goforth_events",DEF_EVENTS));
 
-  const setProfile=v=>{setProfile_(v);save("goforth_profile",v);};
   const setFunders=fn=>{setFunders_(p=>{const n=typeof fn==="function"?fn(p):fn;save("goforth_funders",n);return n;});};
   const setTasks=fn=>{setTasks_(p=>{const n=typeof fn==="function"?fn(p):fn;save("goforth_tasks",n);return n;});};
   const setEvents=fn=>{setEvents_(p=>{const n=typeof fn==="function"?fn(p):fn;save("goforth_events",n);return n;});};
@@ -1315,10 +1449,17 @@ export default function GoForth(){
           })}
         </nav>
         <div style={{padding:"14px 18px",borderTop:`1px solid ${C.navyXL}`}}>
-          <div style={{fontSize:11,color:"#5a6e8a",lineHeight:1.5}}>
-            {profile.name.slice(0,28)}{profile.name.length>28?"...":""}<br/>
-            EIN {profile.ein}
-          </div>
+          <div style={{fontSize:10,color:"#5a6e8a",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}}>Active Organization</div>
+          {profiles.length>1?(
+            <select style={{width:"100%",background:"transparent",border:`1px solid ${C.navyXL}`,color:"#8a9db8",fontSize:11,borderRadius:6,padding:"4px 6px",cursor:"pointer",marginBottom:4}}
+              value={profile.id} onChange={e=>setActiveProfileId(e.target.value)}>
+              {profiles.map(p=><option key={p.id} value={p.id} style={{background:C.navy}}>{p.name.slice(0,30)}</option>)}
+            </select>
+          ):(
+            <div style={{fontSize:11,color:"#8a9db8",marginBottom:4}}>{profile.name.slice(0,28)}{profile.name.length>28?"...":""}</div>
+          )}
+          <div style={{fontSize:10,color:"#3a4e68"}}>EIN {profile.ein||"—"}</div>
+          <button style={{marginTop:8,background:"none",border:`1px dashed ${C.navyXL}`,color:"#5a6e8a",borderRadius:6,padding:"4px 10px",fontSize:10,cursor:"pointer",width:"100%"}} onClick={addProfile}>+ Add Organization</button>
         </div>
       </div>
 
@@ -1346,13 +1487,13 @@ export default function GoForth(){
         <div style={{flex:1,overflowY:"auto",padding:24}}>
           {tab==="dashboard"&&<Dashboard profile={profile} funders={funders} tasks={tasks} events={events} setTab={setTab}/>}
           {tab==="daily"&&<DailyPlan profile={profile} funders={funders} events={events}/>}
-          {tab==="funders"&&<FundersPipeline funders={funders} setFunders={setFunders} tasks={tasks} setTasks={setTasks}/>}
+          {tab==="funders"&&<FundersPipeline funders={funders} setFunders={setFunders} tasks={tasks} setTasks={setTasks} profile={profile}/>}
           {tab==="calendar"&&<CalendarView events={events} setEvents={setEvents}/>}
           {tab==="tasks"&&<TasksView tasks={tasks} setTasks={setTasks} funders={funders}/>}
           {tab==="writing"&&<WritingStudio profile={profile} funders={funders}/>}
           {tab==="portfolio"&&<Portfolio profile={profile}/>}
           {tab==="donors"&&<DonorHub/>}
-          {tab==="settings"&&<Settings profile={profile} setProfile={setProfile}/>}
+          {tab==="settings"&&<Settings profile={profile} setProfile={setProfile} profiles={profiles} setProfiles={setProfiles} activeProfileId={profile.id} setActiveProfileId={setActiveProfileId} addProfile={addProfile} deleteProfile={deleteProfile}/>}
         </div>
       </div>
 

@@ -132,10 +132,33 @@ const BRIEF_TOOL = {
         },
         required: ["approach", "nextImmediateAction"]
       },
+      donorPreferences: {
+        type: "object",
+        properties: {
+          topFundingPatterns: { type: "string", description: "What this funder funds most consistently across their 990 history" },
+          preferredOrgCharacteristics: { type: "string", description: "Types of orgs they prefer: size, model, faith status, geography" },
+          keyDonorTriggers: { type: "string", description: "What specific factors seem to make them say yes — the triggers" },
+          typicalGrantSize: { type: "string", description: "Typical grant size range based on 990 or public data" },
+          repeatGranteeNotes: { type: "string", description: "Do they fund the same orgs repeatedly? Any notable patterns?" },
+          avoidancePatterns: { type: "string", description: "Types of orgs, causes, or approaches they appear to avoid" }
+        },
+        required: ["topFundingPatterns", "keyDonorTriggers", "preferredOrgCharacteristics"]
+      },
+      boardProfile: {
+        type: "object",
+        properties: {
+          keyLeaders: { type: "string", description: "Names and roles of board members, trustees, or officers found in public sources" },
+          leaderInsights: { type: "string", description: "What their public statements, interviews, or affiliations reveal about their priorities" },
+          messagingHooks: { type: "array", items: { type: "string" }, description: "Specific messaging angles tailored to what known leaders care about" },
+          networkConnections: { type: "string", description: "Any known connections between their board and Catholic/community networks relevant to the applicant" },
+          dataQuality: { type: "string", enum: ["rich", "partial", "minimal"], description: "How much leadership data was available" }
+        },
+        required: ["leaderInsights", "messagingHooks", "dataQuality"]
+      },
       executiveSummary: { type: "string" },
       competitiveRisk: { type: "string" }
     },
-    required: ["funderSnapshot", "fundedOrgProfile", "alignment", "messagingBlueprint", "relationshipStrategy", "executiveSummary"]
+    required: ["funderSnapshot", "fundedOrgProfile", "alignment", "messagingBlueprint", "relationshipStrategy", "donorPreferences", "boardProfile", "executiveSummary"]
   }
 };
 
@@ -207,14 +230,17 @@ ${grantRecipients.length ? "Recent Grant Recipients: " + grantRecipients.join(",
   }
 
   // ── 2. Tavily intelligence searches ──────────────────────────────────────
+  let boardContext = "";
   try {
-    const [r1, r2, r3] = await Promise.allSettled([
+    const [r1, r2, r3, r4] = await Promise.allSettled([
       tavilySearch(`"${funder.name}" grants awarded funded organizations 990 giving history recipients`),
       tavilySearch(`"${funder.name}" grant requirements priorities interests trustees officers how to apply`),
       tavilySearch(`${funder.name} Louisiana Catholic nonprofit human services women housing community funded`),
+      tavilySearch(`"${funder.name}" board directors trustees officers executive philanthropic philosophy mission giving vision interview statement`),
     ]);
 
     const snippets = [];
+    const boardSnippets = [];
     for (const r of [r1, r2, r3]) {
       if (r.status === "fulfilled" && r.value.status === 200) {
         for (const item of r.value.body?.results || []) {
@@ -222,13 +248,19 @@ ${grantRecipients.length ? "Recent Grant Recipients: " + grantRecipients.join(",
         }
       }
     }
+    if (r4.status === "fulfilled" && r4.value.status === 200) {
+      for (const item of r4.value.body?.results || []) {
+        if (item.content) boardSnippets.push(`SOURCE: ${item.url}\n${item.content.slice(0, 500)}`);
+      }
+    }
     if (snippets.length) webContext = `\n\nLIVE INTELLIGENCE:\n${snippets.slice(0, 10).join("\n\n---\n")}`;
+    if (boardSnippets.length) boardContext = `\n\nBOARD & LEADERSHIP INTELLIGENCE:\n${boardSnippets.slice(0, 6).join("\n\n---\n")}`;
   } catch (e) {
     console.error("Tavily error:", e.message);
   }
 
   // ── 3. Claude competitive brief synthesis ─────────────────────────────────
-  const prompt = `You are a senior nonprofit development strategist with 20+ years writing winning proposals to private foundations. Analyze this funder and generate a complete competitive intelligence brief.
+  const prompt = `You are a senior nonprofit development strategist with 20+ years writing winning proposals to private foundations. Analyze this funder and generate a complete competitive intelligence brief. Include detailed donor preference patterns and board/leadership intelligence to help tailor messaging.
 
 APPLICANT ORGANIZATION:
 Name: ${profile?.name || "St. Teresa Center for the Works of Mercy"}
@@ -249,8 +281,9 @@ Known focus/notes: ${funder.notes || "Unknown — use intelligence below"}
 Previous ask or context: ${funder.ask || "None yet"}
 ${proPublicaContext}
 ${webContext}
+${boardContext}
 
-Generate a complete competitive brief. Be specific and actionable. Use real language the grant writer can copy directly into their LOI or proposal.`;
+Generate a complete competitive brief. For donorPreferences, synthesize the 990 giving history and web intelligence into clear patterns a grant writer can act on. For boardProfile, use any leadership intel found — if data is sparse, set dataQuality to "minimal" and still provide messagingHooks based on funder type and mission. Be specific and actionable. Use real language the grant writer can copy directly into their LOI or proposal.`;
 
   try {
     const { status, body } = await claudePost({
