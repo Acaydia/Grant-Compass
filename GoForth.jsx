@@ -2,37 +2,37 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 /* ─── Palette ─────────────────────────────────────────────────────────────── */
 const C = {
-  // Deep dark surfaces — slight blue-black undertone for depth
-  bg:"#080809",
-  surface:"#0e0e10",
-  surfaceL:"#141417",    // cards
-  surfaceXL:"#1e1e22",   // hover/active states
+  // Dark zinc surfaces
+  bg:"#09090b",          // zinc-950
+  surface:"#111113",     // content area bg
+  surfaceL:"#18181b",    // zinc-900 – cards
+  surfaceXL:"#27272a",   // zinc-800 – hover/active
 
-  // Legacy nav aliases
-  navy:"#0e0e10", navyL:"#141417", navyXL:"#1e1e22",
-  navyDeep:"#060607",
+  // Legacy nav aliases (sidebar uses these)
+  navy:"#111113", navyL:"#18181b", navyXL:"#27272a",
+  navyDeep:"#0a0a0c",
 
-  // Champagne gold — sophisticated, not garish
-  gold:"#c9a96e", goldBright:"#d9bc8a",
-  goldL:"rgba(201,169,110,0.11)", goldD:"#a07845",
+  // Gold brand accent
+  gold:"#d4a843", goldBright:"#efc45e",
+  goldL:"rgba(212,168,67,0.12)", goldD:"#a07a1e",
 
-  // Status
-  green:"#22c55e", greenL:"rgba(34,197,94,0.10)",
-  red:"#f43f5e",   redL:"rgba(244,63,94,0.10)",
-  amber:"#f59e0b", amberL:"rgba(245,158,11,0.10)",
-  blue:"#60a5fa",  blueL:"rgba(96,165,250,0.10)",
+  // Status – vivid on dark
+  green:"#10b981", greenL:"rgba(16,185,129,0.12)",
+  red:"#ef4444",   redL:"rgba(239,68,68,0.12)",
+  amber:"#f59e0b", amberL:"rgba(245,158,11,0.12)",
+  blue:"#3b82f6",  blueL:"rgba(59,130,246,0.12)",
 
-  // Typography — softer whites for less harshness
+  // Typography
   white:"#ffffff",
-  text:"#e8e8ec",
-  muted:"#6b6b78",
-  mutedL:"#9898a8",
+  text:"#f4f4f5",        // zinc-100
+  muted:"#71717a",       // zinc-500
+  mutedL:"#a1a1aa",      // zinc-400
 
-  // Borders & shadows — more refined
-  border:"rgba(255,255,255,0.06)",
-  borderStr:"rgba(255,255,255,0.11)",
-  shadow:"rgba(0,0,0,0.4)",
-  shadowMd:"rgba(0,0,0,0.6)",
+  // Borders & shadows
+  border:"rgba(255,255,255,0.07)",
+  borderStr:"rgba(255,255,255,0.13)",
+  shadow:"rgba(0,0,0,0.35)",
+  shadowMd:"rgba(0,0,0,0.55)",
 };
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
@@ -101,22 +101,20 @@ const DEF_EVENTS = [
 
 /* ─── Styles ──────────────────────────────────────────────────────────────── */
 const card = (extra={}) => ({
-  background:C.surfaceL,borderRadius:16,border:`1px solid ${C.border}`,padding:28,marginBottom:20,
-  boxShadow:`0 1px 2px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.22), 0 16px 48px rgba(0,0,0,0.12)`,
-  transition:"box-shadow 0.2s cubic-bezier(0.4,0,0.2,1), transform 0.2s cubic-bezier(0.4,0,0.2,1)",...extra
+  background:C.surfaceL,borderRadius:14,border:`1px solid ${C.border}`,padding:24,marginBottom:20,
+  boxShadow:`0 1px 3px rgba(0,0,0,0.3), 0 6px 24px rgba(0,0,0,0.18)`,...extra
 });
 const btn = (v="primary",extra={}) => ({
-  padding:"9px 20px",borderRadius:9,border:"none",cursor:"pointer",fontWeight:600,fontSize:13,letterSpacing:0.3,
-  background:v==="primary"?`linear-gradient(160deg,${C.goldBright} 0%,${C.gold} 100%)`:
-             v==="navy"?`rgba(255,255,255,0.07)`:
+  padding:"9px 20px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,letterSpacing:0.2,
+  background:v==="primary"?`linear-gradient(135deg,${C.goldBright} 0%,${C.gold} 100%)`:
+             v==="navy"?`rgba(255,255,255,0.08)`:
              v==="green"?C.green:v==="red"?C.red:
-             v==="outline"?"transparent":"rgba(255,255,255,0.05)",
-  color:v==="outline"?C.mutedL:v==="primary"?"#0e0c08":v==="muted"?C.muted:C.white,
+             v==="outline"?"transparent":"rgba(255,255,255,0.06)",
+  color:v==="outline"?C.mutedL:v==="primary"?"#111113":v==="muted"?C.muted:C.white,
   border:v==="outline"?`1px solid ${C.borderStr}`:"none",
-  boxShadow:v==="primary"?`0 1px 0 rgba(255,255,255,0.15) inset, 0 2px 12px rgba(201,169,110,0.25)`:
-            v==="outline"?"none":v==="muted"?"none":`0 1px 3px rgba(0,0,0,0.25)`,
-  display:"inline-flex",alignItems:"center",gap:6,
-  transition:"all 0.18s cubic-bezier(0.4,0,0.2,1)",...extra
+  boxShadow:v==="primary"?`0 2px 14px rgba(212,168,67,0.35)`:
+            v==="outline"?"none":v==="muted"?"none":`0 1px 4px rgba(0,0,0,0.3)`,
+  display:"inline-flex",alignItems:"center",gap:6,transition:"all 0.15s",...extra
 });
 const badge = (c="blue") => ({
   display:"inline-block",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,letterSpacing:0.2,
@@ -134,15 +132,15 @@ const label = {display:"block",fontSize:10.5,fontWeight:700,color:C.muted,margin
 
 /* ─── TABS ────────────────────────────────────────────────────────────────── */
 const TABS = [
-  {id:"dashboard",label:"Dashboard"},
-  {id:"daily",label:"Daily Plan"},
-  {id:"funders",label:"Funders"},
-  {id:"calendar",label:"Calendar"},
-  {id:"tasks",label:"Tasks"},
-  {id:"writing",label:"Writing Studio"},
-  {id:"portfolio",label:"Portfolio"},
-  {id:"donors",label:"Donor Hub"},
-  {id:"settings",label:"Settings"},
+  {id:"dashboard",icon:"⚡",label:"Dashboard"},
+  {id:"daily",icon:"📋",label:"Daily Plan"},
+  {id:"funders",icon:"🔍",label:"Funders"},
+  {id:"calendar",icon:"📅",label:"Calendar"},
+  {id:"tasks",icon:"✅",label:"Tasks"},
+  {id:"writing",icon:"✍️",label:"Writing Studio"},
+  {id:"portfolio",icon:"🏛️",label:"Portfolio"},
+  {id:"donors",icon:"🤝",label:"Donor Hub"},
+  {id:"settings",icon:"⚙️",label:"Settings"},
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -158,17 +156,18 @@ function Dashboard({profile,funders,tasks,events,setTab}){
   return (
     <div>
       {/* Header bar */}
-      <div style={{borderRadius:18,background:`linear-gradient(160deg, #0c0c0f 0%, #111115 60%, #161620 100%)`,color:C.white,marginBottom:24,border:`1px solid rgba(255,255,255,0.07)`,boxShadow:`0 1px 0 rgba(255,255,255,0.05) inset, 0 2px 4px rgba(0,0,0,0.4), 0 12px 48px rgba(0,0,0,0.35)`,padding:"28px 32px",position:"relative",overflow:"hidden"}}>
-        {/* Subtle grid texture */}
-        <div style={{position:"absolute",inset:0,backgroundImage:`radial-gradient(circle at 80% 20%, rgba(201,169,110,0.04) 0%, transparent 60%)`,pointerEvents:"none"}}/>
+      <div style={{borderRadius:16,background:`linear-gradient(135deg, #0a0a0c 0%, #131316 55%, #1a1a1f 100%)`,color:C.white,marginBottom:24,border:`1px solid rgba(255,255,255,0.07)`,boxShadow:`0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset`,padding:"24px 28px",position:"relative",overflow:"hidden"}}>
+        {/* Decorative circles */}
+        <div style={{position:"absolute",top:-60,right:-60,width:200,height:200,borderRadius:"50%",background:"rgba(201,168,76,0.05)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",bottom:-40,right:80,width:120,height:120,borderRadius:"50%",background:"rgba(255,255,255,0.03)",pointerEvents:"none"}}/>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,position:"relative"}}>
           <div>
             <div style={{fontSize:10.5,color:C.gold,fontWeight:600,letterSpacing:1.6,textTransform:"uppercase",marginBottom:6,opacity:0.9}}>Active Organization</div>
             <div style={{fontSize:21,fontWeight:800,color:"#fff",letterSpacing:-0.4,lineHeight:1.2}}>{profile.name}</div>
             <div style={{fontSize:12,color:"rgba(161,161,170,0.7)",marginTop:5}}>{profile.apostolate} · {profile.city}, {profile.state}</div>
             <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
-              <span style={{fontSize:10,fontWeight:600,background:"rgba(34,197,94,0.10)",color:"#4ade80",border:"1px solid rgba(34,197,94,0.2)",borderRadius:20,padding:"2px 10px",letterSpacing:0.5}}>Zero Overhead</span>
-              <span style={{fontSize:10,fontWeight:600,background:"rgba(201,169,110,0.10)",color:C.gold,border:"1px solid rgba(201,169,110,0.2)",borderRadius:20,padding:"2px 10px",letterSpacing:0.5}}>100% Volunteer-Run</span>
+              <span style={{fontSize:10.5,fontWeight:700,background:"rgba(39,167,98,0.18)",color:"#6ef0a4",border:"1px solid rgba(39,167,98,0.3)",borderRadius:20,padding:"2px 10px",letterSpacing:0.3}}>✓ ZERO Overhead</span>
+              <span style={{fontSize:10.5,fontWeight:700,background:"rgba(201,168,76,0.15)",color:C.gold,border:"1px solid rgba(201,168,76,0.3)",borderRadius:20,padding:"2px 10px",letterSpacing:0.3}}>100% Volunteer-Run</span>
             </div>
           </div>
           {nextDeadline && (
@@ -184,20 +183,18 @@ function Dashboard({profile,funders,tasks,events,setTab}){
       {/* Metrics */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:20}}>
         {[
-          {label:"Families Served",value:profile.families+"+",sub:"weekly",color:"#a78bfa",accent:"rgba(167,139,250,0.08)",border:"rgba(167,139,250,0.15)"},
-          {label:"Hot Meals / Week",value:profile.mealsWeekly,sub:"every Thursday",color:C.green,accent:"rgba(34,197,94,0.08)",border:"rgba(34,197,94,0.15)"},
-          {label:"Women Housed",value:profile.womenServed,sub:"in 2025",color:C.blue,accent:"rgba(96,165,250,0.08)",border:"rgba(96,165,250,0.15)"},
-          {label:"Volunteers",value:profile.volunteers,sub:"100% volunteer-run",color:C.gold,accent:"rgba(201,169,110,0.08)",border:"rgba(201,169,110,0.15)"},
+          {icon:"👨‍👩‍👧‍👦",label:"Families Served",value:profile.families+"+",sub:"weekly",color:"#a78bfa",accent:"rgba(167,139,250,0.1)"},
+          {icon:"🍲",label:"Hot Meals / Week",value:profile.mealsWeekly,sub:"every Thursday",color:C.green,accent:"rgba(16,185,129,0.1)"},
+          {icon:"🏠",label:"Women Housed",value:profile.womenServed,sub:"in 2025",color:"#60a5fa",accent:"rgba(96,165,250,0.1)"},
+          {icon:"🙏",label:"Volunteers",value:profile.volunteers,sub:"100% volunteer-run",color:C.gold,accent:"rgba(212,168,67,0.1)"},
         ].map(m=>(
-          <div key={m.label} style={card({padding:22,marginBottom:0,position:"relative",overflow:"hidden"})}>
-            <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:`linear-gradient(90deg,${m.color}cc,${m.color}33)`}}/>
-            <div style={{display:"flex",alignItems:"center",gap:14,paddingTop:6}}>
-              <div style={{width:40,height:40,borderRadius:12,background:m.accent,border:`1px solid ${m.border}`,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <div style={{width:16,height:16,borderRadius:4,background:m.color,opacity:0.9}}/>
-              </div>
+          <div key={m.label} style={card({padding:20,marginBottom:0,position:"relative",overflow:"hidden"})}>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${m.color},${m.color}66)`}}/>
+            <div style={{display:"flex",alignItems:"center",gap:13,paddingTop:4}}>
+              <div style={{fontSize:22,background:m.accent,borderRadius:11,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{m.icon}</div>
               <div>
-                <div style={{fontSize:28,fontWeight:800,color:m.color,lineHeight:1,letterSpacing:-0.8}}>{m.value}</div>
-                <div style={{fontSize:11.5,fontWeight:600,marginTop:3,color:C.text}}>{m.label}</div>
+                <div style={{fontSize:28,fontWeight:900,color:m.color,lineHeight:1,letterSpacing:-0.8}}>{m.value}</div>
+                <div style={{fontSize:11.5,fontWeight:600,marginTop:2,color:C.text}}>{m.label}</div>
                 <div style={{fontSize:10.5,color:C.muted,marginTop:1}}>{m.sub}</div>
               </div>
             </div>
@@ -209,7 +206,7 @@ function Dashboard({profile,funders,tasks,events,setTab}){
         {/* Upcoming deadlines */}
         <div style={card({marginBottom:0})}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <div style={{fontWeight:700,fontSize:14,letterSpacing:-0.2,color:C.text}}>Upcoming Deadlines</div>
+            <div style={{fontWeight:700,fontSize:15}}>📅 Upcoming Deadlines</div>
             <button style={btn("outline",{fontSize:12,padding:"5px 12px"})} onClick={()=>setTab("calendar")}>View Calendar</button>
           </div>
           {upcoming.map(e=>{
@@ -231,7 +228,7 @@ function Dashboard({profile,funders,tasks,events,setTab}){
         {/* Open tasks */}
         <div style={card({marginBottom:0})}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <div style={{fontWeight:700,fontSize:14,letterSpacing:-0.2,color:C.text}}>Open Tasks</div>
+            <div style={{fontWeight:700,fontSize:15}}>✅ Open Tasks</div>
             <button style={btn("outline",{fontSize:12,padding:"5px 12px"})} onClick={()=>setTab("tasks")}>View All</button>
           </div>
           {openTasks.map(t=>(
@@ -250,7 +247,7 @@ function Dashboard({profile,funders,tasks,events,setTab}){
       {/* Active pipeline */}
       <div style={card({marginTop:20})}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <div style={{fontWeight:700,fontSize:14,letterSpacing:-0.2,color:C.text}}>Active Pipeline</div>
+          <div style={{fontWeight:700,fontSize:15}}>💼 Active Funder Pipeline</div>
           <button style={btn("outline",{fontSize:12,padding:"5px 12px"})} onClick={()=>setTab("funders")}>Full Pipeline</button>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
@@ -304,7 +301,7 @@ function DailyPlan({profile,funders,events}){
       <div style={card({background:`linear-gradient(135deg,#111113,#1a1a1f)`,color:C.white,border:`1px solid rgba(255,255,255,0.08)`})}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
           <div>
-            <div style={{fontSize:19,fontWeight:700,color:C.gold,letterSpacing:-0.3}}>{dow} Development Plan</div>
+            <div style={{fontSize:20,fontWeight:800,color:C.gold}}>📋 {dow} Development Plan</div>
             <div style={{fontSize:13,color:"rgba(161,161,170,0.75)",marginTop:3}}>{todayFull()} · {profile.name}</div>
           </div>
           <button style={btn("primary",{fontSize:14,padding:"11px 24px"})} onClick={generate} disabled={loading}>
@@ -317,10 +314,8 @@ function DailyPlan({profile,funders,events}){
 
       {!plan&&!loading&&(
         <div style={card({textAlign:"center",padding:60,color:C.muted})}>
-          <div style={{width:56,height:56,borderRadius:16,background:"rgba(201,169,110,0.08)",border:"1px solid rgba(201,169,110,0.15)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",boxShadow:"0 0 32px rgba(201,169,110,0.06)"}}>
-            <div style={{width:24,height:24,borderRadius:6,background:C.gold,opacity:0.7}}/>
-          </div>
-          <div style={{fontSize:18,fontWeight:700,color:C.text,marginBottom:8,letterSpacing:-0.3}}>Ready to generate today's plan</div>
+          <div style={{fontSize:48,marginBottom:16}}>📋</div>
+          <div style={{fontSize:18,fontWeight:700,color:C.text,marginBottom:8}}>Ready to generate today's plan</div>
           <div style={{fontSize:14,marginBottom:24,color:C.muted}}>Click "Generate Today's Plan" to get a daily-refreshed donor prospect briefing with a featured local funder, deadline countdown, messaging framework, and 7-day sprint.</div>
           <div style={{fontSize:12,color:C.gold,fontWeight:600}}>Powered by live web search + Claude AI</div>
         </div>
@@ -328,10 +323,8 @@ function DailyPlan({profile,funders,events}){
 
       {loading&&(
         <div style={card({textAlign:"center",padding:60})}>
-          <div style={{width:48,height:48,borderRadius:14,background:"rgba(201,169,110,0.08)",border:"1px solid rgba(201,169,110,0.18)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",animation:"subtlePulse 1.6s ease-in-out infinite"}}>
-            <div style={{width:18,height:18,borderRadius:4,background:`linear-gradient(135deg,${C.goldBright},${C.gold})`,animation:"spin 1.2s linear infinite"}}/>
-          </div>
-          <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:8,letterSpacing:-0.3}}>Searching live databases...</div>
+          <div style={{fontSize:40,marginBottom:16,animation:"spin 1s linear infinite"}}>⚡</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:8}}>Searching live databases...</div>
           <div style={{fontSize:13,color:C.muted}}>Scanning foundation 990s, local philanthropy networks, and grant portals for today's featured funder</div>
           <div style={{marginTop:16,height:3,background:"rgba(255,255,255,0.07)",borderRadius:2,overflow:"hidden"}}>
             <div style={{height:"100%",background:`linear-gradient(90deg,${C.gold},${C.goldBright})`,borderRadius:2,animation:"progress 2s ease-in-out infinite"}}/>
@@ -824,7 +817,7 @@ function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
                   disabled={analyzing===f.id}
                   title="Run competitive intelligence analysis using 990-PF data + AI"
                 >
-                  {analyzing===f.id?"Analyzing...":"Analyze"}
+                  {analyzing===f.id?"⏳ Analyzing...":"🧠 Analyze"}
                 </button>
                 <button style={{background:"none",border:"none",color:"rgba(100,116,139,0.5)",cursor:"pointer",fontSize:11,letterSpacing:0.2}} onClick={()=>deleteFunder(f.id)}>✕ Remove</button>
               </div>
@@ -1502,35 +1495,31 @@ export default function GoForth(){
         {/* Logo */}
         <div style={{padding:"26px 20px 18px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:2}}>
-            <div style={{width:32,height:32,borderRadius:9,background:`linear-gradient(145deg,${C.goldBright} 0%,${C.gold} 60%,${C.goldD} 100%)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:`0 0 0 1px rgba(255,255,255,0.1) inset, 0 2px 12px rgba(201,169,110,0.25)`}}>
-              <span style={{fontSize:15,fontWeight:800,color:"#0e0c08",lineHeight:1,letterSpacing:-0.5}}>G</span>
+            <div style={{width:34,height:34,borderRadius:10,background:`linear-gradient(135deg,${C.goldBright},${C.gold})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:`0 0 20px rgba(212,168,67,0.3)`}}>
+              <span style={{fontSize:17,fontWeight:900,color:"#111",lineHeight:1}}>G</span>
             </div>
             <div>
-              <div style={{fontSize:15,fontWeight:700,color:"#f0f0f4",letterSpacing:-0.5,lineHeight:1}}>GoForth</div>
-              <div style={{fontSize:9,color:"rgba(255,255,255,0.22)",marginTop:2,textTransform:"uppercase",letterSpacing:1.6}}>Grant Intelligence</div>
+              <div style={{fontSize:16,fontWeight:800,color:"#fff",letterSpacing:-0.4,lineHeight:1}}>GoForth</div>
+              <div style={{fontSize:9,color:"rgba(255,255,255,0.25)",marginTop:2,textTransform:"uppercase",letterSpacing:1.4}}>Grant Intelligence</div>
             </div>
           </div>
-          <div style={{height:"1px",background:`linear-gradient(90deg,rgba(201,169,110,0.35),transparent)`,marginTop:18}}/>
+          <div style={{height:"1px",background:`linear-gradient(90deg,${C.gold}55,transparent)`,marginTop:18}}/>
         </div>
         <nav style={{flex:1,padding:"4px 10px",overflowY:"auto"}}>
           {TABS.map(t=>{
             const active=tab===t.id;
             return (
               <div key={t.id} style={{
-                display:"flex",alignItems:"center",gap:9,
-                padding:active?"9px 11px 9px 10px":"9px 11px 9px 12px",
-                cursor:"pointer",
-                color:active?"#f0f0f4":"rgba(152,152,168,0.72)",
-                background:active?`rgba(201,169,110,0.08)`:"transparent",
-                borderRadius:9,
-                borderLeft:active?`2px solid ${C.gold}`:"2px solid transparent",
-                fontSize:13,fontWeight:active?600:400,
-                letterSpacing:active?-0.1:0,
-                transition:"all 0.18s cubic-bezier(0.4,0,0.2,1)",
-                marginBottom:2}}
+                display:"flex",alignItems:"center",gap:9,padding:"9px 11px",cursor:"pointer",
+                color:active?"#fff":"rgba(161,161,170,0.75)",
+                background:active?`rgba(212,168,67,0.10)`:"transparent",
+                borderRadius:8,
+                outline:active?`1px solid rgba(212,168,67,0.18)`:"none",
+                fontSize:12.5,fontWeight:active?600:400,transition:"all 0.12s",marginBottom:1}}
                 onClick={()=>setTab(t.id)}>
+                <span style={{fontSize:13,opacity:active?1:0.55,width:18,textAlign:"center"}}>{t.icon}</span>
                 {t.label}
-                {t.id==="tasks"&&openTasks>0&&<span style={{marginLeft:"auto",background:C.red,color:"#fff",borderRadius:7,fontSize:9.5,fontWeight:700,padding:"2px 6px",lineHeight:1.4}}>{openTasks}</span>}
+                {t.id==="tasks"&&openTasks>0&&<span style={{marginLeft:"auto",background:C.red,color:"#fff",borderRadius:8,fontSize:9.5,fontWeight:800,padding:"1px 6px",lineHeight:1.5}}>{openTasks}</span>}
               </div>
             );
           })}
@@ -1555,14 +1544,14 @@ export default function GoForth(){
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative",zIndex:1}}>
         {/* Top bar */}
         <div style={{background:"rgba(9,9,11,0.85)",backdropFilter:"blur(16px)",borderBottom:`1px solid rgba(255,255,255,0.07)`,padding:"0 28px",display:"flex",alignItems:"center",justifyContent:"space-between",height:56,flexShrink:0}}>
-          <div style={{fontWeight:600,fontSize:14,color:"#e8e8ec",letterSpacing:-0.2}}>
-            {TABS.find(t=>t.id===tab)?.label}
+          <div style={{fontWeight:700,fontSize:14,color:"#e4e4e7",letterSpacing:-0.1}}>
+            {TABS.find(t=>t.id===tab)?.icon} {TABS.find(t=>t.id===tab)?.label}
           </div>
           <div style={{display:"flex",alignItems:"center",gap:14}}>
             {nextDeadline&&(
-              <div style={{display:"flex",alignItems:"center",gap:7,padding:"4px 12px",background:daysUntil(nextDeadline.date)<=7?C.redL:C.amberL,borderRadius:20,border:`1px solid ${daysUntil(nextDeadline.date)<=7?"rgba(244,63,94,0.2)":"rgba(245,158,11,0.2)"}`}}>
-                <div style={{width:6,height:6,borderRadius:"50%",background:daysUntil(nextDeadline.date)<=7?"#f43f5e":"#f59e0b",flexShrink:0}}/>
-                <span style={{fontSize:11.5,fontWeight:600,color:daysUntil(nextDeadline.date)<=7?"#fb7185":"#fbbf24"}}>
+              <div style={{display:"flex",alignItems:"center",gap:7,padding:"4px 12px",background:daysUntil(nextDeadline.date)<=7?C.redL:C.amberL,borderRadius:20,border:`1px solid ${daysUntil(nextDeadline.date)<=7?"rgba(239,68,68,0.2)":"rgba(245,158,11,0.2)"}`}}>
+                <span style={{fontSize:11,color:daysUntil(nextDeadline.date)<=7?"#f87171":"#fbbf24"}}>⏰</span>
+                <span style={{fontSize:11.5,fontWeight:700,color:daysUntil(nextDeadline.date)<=7?"#f87171":"#fbbf24"}}>
                   {daysUntil(nextDeadline.date)}d · {nextDeadline.title}
                 </span>
               </div>
@@ -1588,26 +1577,26 @@ export default function GoForth(){
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap');
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: #080809; color: #e8e8ec; }
+        html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; background: #09090b; color: #f4f4f5; }
         button { touch-action: manipulation; cursor: pointer; font-family: inherit; }
         a { touch-action: manipulation; }
-        input, select, textarea { font-family: inherit; -webkit-font-smoothing: antialiased; background: rgba(255,255,255,0.04); color: #e8e8ec; border-color: rgba(255,255,255,0.07); }
-        input::placeholder, textarea::placeholder { color: rgba(107,107,120,0.8); }
-        select option { background: #141417; color: #e8e8ec; }
-        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        input, select, textarea { font-family: inherit; -webkit-font-smoothing: antialiased; background: rgba(255,255,255,0.04); color: #f4f4f5; border-color: rgba(255,255,255,0.08); }
+        input::placeholder, textarea::placeholder { color: rgba(113,113,122,0.7); }
+        select option { background: #18181b; color: #f4f4f5; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
         @keyframes progress { 0%{width:8%} 40%{width:65%} 80%{width:88%} 100%{width:95%} }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
         @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        @keyframes subtlePulse { 0%,100%{box-shadow:0 0 0 0 rgba(201,169,110,0)} 50%{box-shadow:0 0 0 4px rgba(201,169,110,0.08)} }
-        button:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        button:active { transform: scale(0.975) translateY(0); filter: brightness(0.95); }
-        nav > div:hover:not([style*="rgba(201,169,110"]) { background: rgba(255,255,255,0.04) !important; color: rgba(232,232,236,0.9) !important; }
-        .gc-card-hover:hover { transform: translateY(-2px); box-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.28), 0 24px 56px rgba(0,0,0,0.14) !important; }
-        @media (max-width: 768px) { button { min-height: 44px; min-width: 44px; } }
+        button:hover { opacity: 0.85; }
+        button:active { transform: scale(0.972); opacity: 0.9; }
+        nav > div:hover:not([style*="rgba(212,168,67"]) { background: rgba(255,255,255,0.05) !important; color: rgba(228,228,231,0.9) !important; }
+        @media (max-width: 768px) {
+          button { min-height: 44px; min-width: 44px; }
+        }
       `}</style>
     </div>
   );
