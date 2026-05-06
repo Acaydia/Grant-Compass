@@ -824,7 +824,7 @@ function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
                   disabled={analyzing===f.id}
                   title="Run competitive intelligence analysis using 990-PF data + AI"
                 >
-                  {analyzing===f.id?"⏳ Analyzing...":"🧠 Analyze"}
+                  {analyzing===f.id?"Analyzing...":"Analyze"}
                 </button>
                 <button style={{background:"none",border:"none",color:"rgba(100,116,139,0.5)",cursor:"pointer",fontSize:11,letterSpacing:0.2}} onClick={()=>deleteFunder(f.id)}>✕ Remove</button>
               </div>
