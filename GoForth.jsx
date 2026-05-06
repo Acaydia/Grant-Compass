@@ -2,14 +2,37 @@ import { useState, useEffect, useRef, useCallback } from "react";
 
 /* ─── Palette ─────────────────────────────────────────────────────────────── */
 const C = {
-  navy:"#1a2744", navyL:"#243256", navyXL:"#2e3f6f",
-  gold:"#c9a84c", goldL:"#f8eecc", goldD:"#9a7a2a",
-  green:"#27674a", greenL:"#e6f4ec",
-  red:"#b92c2c", redL:"#fceaea",
-  amber:"#996600", amberL:"#fff8e1",
-  blue:"#1a4a7a", blueL:"#e8f0fb",
-  bg:"#f4f5fa", white:"#ffffff",
-  border:"#e1e5ed", text:"#1c2233", muted:"#6b7280",
+  // Dark zinc surfaces
+  bg:"#09090b",          // zinc-950
+  surface:"#111113",     // content area bg
+  surfaceL:"#18181b",    // zinc-900 – cards
+  surfaceXL:"#27272a",   // zinc-800 – hover/active
+
+  // Legacy nav aliases (sidebar uses these)
+  navy:"#111113", navyL:"#18181b", navyXL:"#27272a",
+  navyDeep:"#0a0a0c",
+
+  // Gold brand accent
+  gold:"#d4a843", goldBright:"#efc45e",
+  goldL:"rgba(212,168,67,0.12)", goldD:"#a07a1e",
+
+  // Status – vivid on dark
+  green:"#10b981", greenL:"rgba(16,185,129,0.12)",
+  red:"#ef4444",   redL:"rgba(239,68,68,0.12)",
+  amber:"#f59e0b", amberL:"rgba(245,158,11,0.12)",
+  blue:"#3b82f6",  blueL:"rgba(59,130,246,0.12)",
+
+  // Typography
+  white:"#ffffff",
+  text:"#f4f4f5",        // zinc-100
+  muted:"#71717a",       // zinc-500
+  mutedL:"#a1a1aa",      // zinc-400
+
+  // Borders & shadows
+  border:"rgba(255,255,255,0.07)",
+  borderStr:"rgba(255,255,255,0.13)",
+  shadow:"rgba(0,0,0,0.35)",
+  shadowMd:"rgba(0,0,0,0.55)",
 };
 
 /* ─── Helpers ─────────────────────────────────────────────────────────────── */
@@ -71,27 +94,41 @@ const DEF_EVENTS = [
   {id:uid(),title:"Sister Servants 'Come and See' Day",date:"2026-05-02",type:"event",funder:"Donor Cultivation",color:C.gold},
   {id:uid(),title:"Myers Alignment Memo Due",date:"2026-04-28",type:"task",funder:"Myers Family Foundation",color:C.amber},
   {id:uid(),title:"CFA Full Proposal Window Opens",date:"2026-06-22",type:"deadline",funder:"Community Foundation of Acadiana",color:C.blue},
-  {id:uid(),title:"Digging Deeper Women's Retreat",date:"2026-10-09",type:"event",funder:"Major Donor Cultivation",color:C.navy},
+  {id:uid(),title:"Digging Deeper Women's Retreat",date:"2026-10-09",type:"event",funder:"Major Donor Cultivation",color:C.text},
   {id:uid(),title:"iGiveCatholic Campaign",date:"2026-11-17",type:"event",funder:"Annual Campaign",color:C.green},
   {id:uid(),title:"Raskob Fall Cycle Opens",date:"2026-09-01",type:"deadline",funder:"Raskob Foundation",color:C.blue},
 ];
 
 /* ─── Styles ──────────────────────────────────────────────────────────────── */
-const card = (extra={}) => ({background:C.white,borderRadius:12,border:`1px solid ${C.border}`,padding:24,marginBottom:20,...extra});
+const card = (extra={}) => ({
+  background:C.surfaceL,borderRadius:14,border:`1px solid ${C.border}`,padding:24,marginBottom:20,
+  boxShadow:`0 1px 3px rgba(0,0,0,0.3), 0 6px 24px rgba(0,0,0,0.18)`,...extra
+});
 const btn = (v="primary",extra={}) => ({
-  padding:"9px 18px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:600,fontSize:13,
-  background:v==="primary"?C.gold:v==="navy"?C.navy:v==="green"?C.green:v==="red"?C.red:"#f0f1f5",
-  color:v==="outline"?C.navy:v==="primary"?C.navy:C.white,
-  border:v==="outline"?`1px solid ${C.border}`:"none",
-  display:"inline-flex",alignItems:"center",gap:6,...extra
+  padding:"9px 20px",borderRadius:8,border:"none",cursor:"pointer",fontWeight:700,fontSize:13,letterSpacing:0.2,
+  background:v==="primary"?`linear-gradient(135deg,${C.goldBright} 0%,${C.gold} 100%)`:
+             v==="navy"?`rgba(255,255,255,0.08)`:
+             v==="green"?C.green:v==="red"?C.red:
+             v==="outline"?"transparent":"rgba(255,255,255,0.06)",
+  color:v==="outline"?C.mutedL:v==="primary"?"#111113":v==="muted"?C.muted:C.white,
+  border:v==="outline"?`1px solid ${C.borderStr}`:"none",
+  boxShadow:v==="primary"?`0 2px 14px rgba(212,168,67,0.35)`:
+            v==="outline"?"none":v==="muted"?"none":`0 1px 4px rgba(0,0,0,0.3)`,
+  display:"inline-flex",alignItems:"center",gap:6,transition:"all 0.15s",...extra
 });
 const badge = (c="blue") => ({
-  display:"inline-block",padding:"2px 9px",borderRadius:20,fontSize:11,fontWeight:700,
+  display:"inline-block",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700,letterSpacing:0.2,
   background:c==="red"?C.redL:c==="amber"?C.amberL:c==="green"?C.greenL:C.blueL,
-  color:c==="red"?C.red:c==="amber"?C.amber:c==="green"?C.green:C.blue,
+  color:c==="red"?"#f87171":c==="amber"?"#fbbf24":c==="green"?"#34d399":"#60a5fa",
+  border:`1px solid ${c==="red"?"rgba(239,68,68,0.2)":c==="amber"?"rgba(245,158,11,0.2)":c==="green"?"rgba(16,185,129,0.2)":"rgba(59,130,246,0.2)"}`,
 });
-const input = (extra={}) => ({width:"100%",padding:"8px 12px",borderRadius:8,border:`1px solid ${C.border}`,fontSize:13,fontFamily:"inherit",outline:"none",boxSizing:"border-box",...extra});
-const label = {display:"block",fontSize:11,fontWeight:700,color:C.muted,marginBottom:5,textTransform:"uppercase",letterSpacing:0.5};
+const input = (extra={}) => ({
+  width:"100%",padding:"9px 13px",borderRadius:8,border:`1px solid ${C.border}`,
+  fontSize:13,fontFamily:"inherit",outline:"none",boxSizing:"border-box",
+  background:"rgba(255,255,255,0.04)",color:C.text,
+  boxShadow:"inset 0 1px 2px rgba(0,0,0,0.2)",...extra
+});
+const label = {display:"block",fontSize:10.5,fontWeight:700,color:C.muted,marginBottom:5,textTransform:"uppercase",letterSpacing:0.7};
 
 /* ─── TABS ────────────────────────────────────────────────────────────────── */
 const TABS = [
@@ -119,17 +156,25 @@ function Dashboard({profile,funders,tasks,events,setTab}){
   return (
     <div>
       {/* Header bar */}
-      <div style={card({padding:"20px 24px",background:`linear-gradient(135deg, ${C.navy} 0%, ${C.navyXL} 100%)`,color:C.white,marginBottom:24})}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+      <div style={{borderRadius:16,background:`linear-gradient(135deg, #0a0a0c 0%, #131316 55%, #1a1a1f 100%)`,color:C.white,marginBottom:24,border:`1px solid rgba(255,255,255,0.07)`,boxShadow:`0 8px 40px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.05) inset`,padding:"24px 28px",position:"relative",overflow:"hidden"}}>
+        {/* Decorative circles */}
+        <div style={{position:"absolute",top:-60,right:-60,width:200,height:200,borderRadius:"50%",background:"rgba(201,168,76,0.05)",pointerEvents:"none"}}/>
+        <div style={{position:"absolute",bottom:-40,right:80,width:120,height:120,borderRadius:"50%",background:"rgba(255,255,255,0.03)",pointerEvents:"none"}}/>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,position:"relative"}}>
           <div>
-            <div style={{fontSize:22,fontWeight:800,color:C.gold}}>{profile.name}</div>
-            <div style={{fontSize:13,color:"#aabbd4",marginTop:3}}>{profile.apostolate} · {profile.city}, {profile.state} · {todayFull()}</div>
+            <div style={{fontSize:10.5,color:C.gold,fontWeight:600,letterSpacing:1.6,textTransform:"uppercase",marginBottom:6,opacity:0.9}}>Active Organization</div>
+            <div style={{fontSize:21,fontWeight:800,color:"#fff",letterSpacing:-0.4,lineHeight:1.2}}>{profile.name}</div>
+            <div style={{fontSize:12,color:"rgba(161,161,170,0.7)",marginTop:5}}>{profile.apostolate} · {profile.city}, {profile.state}</div>
+            <div style={{display:"flex",gap:8,marginTop:10,flexWrap:"wrap"}}>
+              <span style={{fontSize:10.5,fontWeight:700,background:"rgba(39,167,98,0.18)",color:"#6ef0a4",border:"1px solid rgba(39,167,98,0.3)",borderRadius:20,padding:"2px 10px",letterSpacing:0.3}}>✓ ZERO Overhead</span>
+              <span style={{fontSize:10.5,fontWeight:700,background:"rgba(201,168,76,0.15)",color:C.gold,border:"1px solid rgba(201,168,76,0.3)",borderRadius:20,padding:"2px 10px",letterSpacing:0.3}}>100% Volunteer-Run</span>
+            </div>
           </div>
           {nextDeadline && (
-            <div style={{textAlign:"right"}}>
-              <div style={{fontSize:11,color:"#aabbd4",textTransform:"uppercase",letterSpacing:1}}>Next Deadline</div>
-              <div style={{fontSize:28,fontWeight:900,color:daysUntil(nextDeadline.date)<=7?C.red:C.gold}}>{daysUntil(nextDeadline.date)}d</div>
-              <div style={{fontSize:12,color:"#c0d0e8"}}>{nextDeadline.title}</div>
+            <div style={{textAlign:"right",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:14,padding:"14px 20px",backdropFilter:"blur(4px)"}}>
+              <div style={{fontSize:9.5,color:"rgba(200,215,230,0.6)",textTransform:"uppercase",letterSpacing:1.2,marginBottom:4}}>Next Deadline</div>
+              <div style={{fontSize:36,fontWeight:900,color:daysUntil(nextDeadline.date)<=7?C.red:C.gold,lineHeight:1,letterSpacing:-1}}>{daysUntil(nextDeadline.date)}<span style={{fontSize:16,letterSpacing:0}}> d</span></div>
+              <div style={{fontSize:11,color:"rgba(192,208,232,0.8)",marginTop:4,maxWidth:160}}>{nextDeadline.title}</div>
             </div>
           )}
         </div>
@@ -138,18 +183,19 @@ function Dashboard({profile,funders,tasks,events,setTab}){
       {/* Metrics */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,marginBottom:20}}>
         {[
-          {icon:"👨‍👩‍👧‍👦",label:"Families Served",value:profile.families+"+",sub:"weekly",color:C.navy},
-          {icon:"🍲",label:"Hot Meals / Week",value:profile.mealsWeekly,sub:"every Thursday",color:C.green},
-          {icon:"🏠",label:"Women Housed",value:profile.womenServed,sub:"in 2025",color:C.blue},
-          {icon:"🙏",label:"Volunteers",value:profile.volunteers,sub:"100% volunteer-run",color:C.gold},
+          {icon:"👨‍👩‍👧‍👦",label:"Families Served",value:profile.families+"+",sub:"weekly",color:"#a78bfa",accent:"rgba(167,139,250,0.1)"},
+          {icon:"🍲",label:"Hot Meals / Week",value:profile.mealsWeekly,sub:"every Thursday",color:C.green,accent:"rgba(16,185,129,0.1)"},
+          {icon:"🏠",label:"Women Housed",value:profile.womenServed,sub:"in 2025",color:"#60a5fa",accent:"rgba(96,165,250,0.1)"},
+          {icon:"🙏",label:"Volunteers",value:profile.volunteers,sub:"100% volunteer-run",color:C.gold,accent:"rgba(212,168,67,0.1)"},
         ].map(m=>(
-          <div key={m.label} style={card({padding:20,marginBottom:0})}>
-            <div style={{display:"flex",alignItems:"center",gap:12}}>
-              <div style={{fontSize:28}}>{m.icon}</div>
+          <div key={m.label} style={card({padding:20,marginBottom:0,position:"relative",overflow:"hidden"})}>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${m.color},${m.color}66)`}}/>
+            <div style={{display:"flex",alignItems:"center",gap:13,paddingTop:4}}>
+              <div style={{fontSize:22,background:m.accent,borderRadius:11,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{m.icon}</div>
               <div>
-                <div style={{fontSize:24,fontWeight:900,color:m.color,lineHeight:1}}>{m.value}</div>
-                <div style={{fontSize:12,fontWeight:600,marginTop:2}}>{m.label}</div>
-                <div style={{fontSize:11,color:C.muted}}>{m.sub}</div>
+                <div style={{fontSize:28,fontWeight:900,color:m.color,lineHeight:1,letterSpacing:-0.8}}>{m.value}</div>
+                <div style={{fontSize:11.5,fontWeight:600,marginTop:2,color:C.text}}>{m.label}</div>
+                <div style={{fontSize:10.5,color:C.muted,marginTop:1}}>{m.sub}</div>
               </div>
             </div>
           </div>
@@ -204,15 +250,21 @@ function Dashboard({profile,funders,tasks,events,setTab}){
           <div style={{fontWeight:700,fontSize:15}}>💼 Active Funder Pipeline</div>
           <button style={btn("outline",{fontSize:12,padding:"5px 12px"})} onClick={()=>setTab("funders")}>Full Pipeline</button>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
           {["prospect","active","submitted","won","lost"].map(stage=>{
             const count=funders.filter(f=>f.stage===stage).length;
-            const colors={prospect:C.blueL,active:C.amberL,submitted:C.goldL,won:C.greenL,lost:"#f5f5f5"};
-            const textColors={prospect:C.blue,active:C.amber,submitted:C.goldD,won:C.green,lost:C.muted};
+            const configs={
+              prospect:{bg:C.blueL,tc:"#60a5fa",border:"rgba(59,130,246,0.18)"},
+              active:{bg:C.amberL,tc:"#fbbf24",border:"rgba(245,158,11,0.18)"},
+              submitted:{bg:C.goldL,tc:C.gold,border:"rgba(212,168,67,0.22)"},
+              won:{bg:C.greenL,tc:"#34d399",border:"rgba(16,185,129,0.18)"},
+              lost:{bg:"rgba(255,255,255,0.03)",tc:C.muted,border:"rgba(255,255,255,0.07)"},
+            };
+            const cfg=configs[stage];
             return (
-              <div key={stage} style={{background:colors[stage],borderRadius:10,padding:"14px 12px",textAlign:"center"}}>
-                <div style={{fontSize:24,fontWeight:900,color:textColors[stage]}}>{count}</div>
-                <div style={{fontSize:11,fontWeight:700,color:textColors[stage],textTransform:"capitalize",marginTop:3}}>{stage}</div>
+              <div key={stage} style={{background:cfg.bg,borderRadius:12,padding:"16px 12px",textAlign:"center",border:`1px solid ${cfg.border}`}}>
+                <div style={{fontSize:28,fontWeight:900,color:cfg.tc,lineHeight:1,letterSpacing:-0.5}}>{count}</div>
+                <div style={{fontSize:10.5,fontWeight:700,color:cfg.tc,textTransform:"capitalize",marginTop:4,letterSpacing:0.3}}>{stage}</div>
               </div>
             );
           })}
@@ -246,11 +298,11 @@ function DailyPlan({profile,funders,events}){
 
   return (
     <div>
-      <div style={card({background:`linear-gradient(135deg,${C.navy},${C.navyXL})`,color:C.white})}>
+      <div style={card({background:`linear-gradient(135deg,#111113,#1a1a1f)`,color:C.white,border:`1px solid rgba(255,255,255,0.08)`})}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
           <div>
             <div style={{fontSize:20,fontWeight:800,color:C.gold}}>📋 {dow} Development Plan</div>
-            <div style={{fontSize:13,color:"#aabbd4",marginTop:3}}>{todayFull()} · {profile.name}</div>
+            <div style={{fontSize:13,color:"rgba(161,161,170,0.75)",marginTop:3}}>{todayFull()} · {profile.name}</div>
           </div>
           <button style={btn("primary",{fontSize:14,padding:"11px 24px"})} onClick={generate} disabled={loading}>
             {loading?"⏳ Generating...":"⚡ Generate Today's Plan"}
@@ -263,19 +315,19 @@ function DailyPlan({profile,funders,events}){
       {!plan&&!loading&&(
         <div style={card({textAlign:"center",padding:60,color:C.muted})}>
           <div style={{fontSize:48,marginBottom:16}}>📋</div>
-          <div style={{fontSize:18,fontWeight:700,color:C.navy,marginBottom:8}}>Ready to generate today's plan</div>
-          <div style={{fontSize:14,marginBottom:24}}>Click "Generate Today's Plan" to get a daily-refreshed donor prospect briefing with a featured local funder, deadline countdown, messaging framework, and 7-day sprint.</div>
-          <div style={{fontSize:12,color:C.amber,fontWeight:600}}>Powered by live web search + Claude AI</div>
+          <div style={{fontSize:18,fontWeight:700,color:C.text,marginBottom:8}}>Ready to generate today's plan</div>
+          <div style={{fontSize:14,marginBottom:24,color:C.muted}}>Click "Generate Today's Plan" to get a daily-refreshed donor prospect briefing with a featured local funder, deadline countdown, messaging framework, and 7-day sprint.</div>
+          <div style={{fontSize:12,color:C.gold,fontWeight:600}}>Powered by live web search + Claude AI</div>
         </div>
       )}
 
       {loading&&(
         <div style={card({textAlign:"center",padding:60})}>
           <div style={{fontSize:40,marginBottom:16,animation:"spin 1s linear infinite"}}>⚡</div>
-          <div style={{fontSize:16,fontWeight:700,color:C.navy,marginBottom:8}}>Searching live databases...</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:8}}>Searching live databases...</div>
           <div style={{fontSize:13,color:C.muted}}>Scanning foundation 990s, local philanthropy networks, and grant portals for today's featured funder</div>
-          <div style={{marginTop:16,height:4,background:C.border,borderRadius:2,overflow:"hidden"}}>
-            <div style={{height:"100%",background:C.gold,borderRadius:2,animation:"progress 2s ease-in-out infinite"}}/>
+          <div style={{marginTop:16,height:3,background:"rgba(255,255,255,0.07)",borderRadius:2,overflow:"hidden"}}>
+            <div style={{height:"100%",background:`linear-gradient(90deg,${C.gold},${C.goldBright})`,borderRadius:2,animation:"progress 2s ease-in-out infinite"}}/>
           </div>
         </div>
       )}
@@ -290,24 +342,24 @@ function DailyPlan({profile,funders,events}){
 
           {/* Featured Funder */}
           {plan.featuredFunder&&(
-            <div style={card({background:`linear-gradient(135deg,${C.goldL},#fff9e0)`,border:`1px solid ${C.gold}`})}>
+            <div style={card({background:`linear-gradient(135deg,rgba(212,168,67,0.08),rgba(212,168,67,0.04))`,border:`1px solid rgba(212,168,67,0.25)`})}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
                 <div style={{flex:1}}>
-                  <div style={{fontSize:11,fontWeight:700,color:C.goldD,textTransform:"uppercase",letterSpacing:1,marginBottom:6}}>⭐ Today's Featured Funder</div>
-                  <div style={{fontSize:20,fontWeight:800,color:C.navy}}>{plan.featuredFunder.name}</div>
-                  <div style={{fontSize:13,color:C.navyL,marginTop:4}}>{plan.featuredFunder.type} · {plan.featuredFunder.location}</div>
-                  {plan.featuredFunder.assets&&<div style={{fontSize:13,color:C.green,fontWeight:600,marginTop:4}}>Assets: {plan.featuredFunder.assets} · Annual Grants: {plan.featuredFunder.annualGrants}</div>}
+                  <div style={{fontSize:10.5,fontWeight:700,color:C.gold,textTransform:"uppercase",letterSpacing:1.2,marginBottom:6}}>⭐ Today's Featured Funder</div>
+                  <div style={{fontSize:20,fontWeight:800,color:C.text}}>{plan.featuredFunder.name}</div>
+                  <div style={{fontSize:13,color:C.muted,marginTop:4}}>{plan.featuredFunder.type} · {plan.featuredFunder.location}</div>
+                  {plan.featuredFunder.assets&&<div style={{fontSize:13,color:"#34d399",fontWeight:600,marginTop:4}}>Assets: {plan.featuredFunder.assets} · Annual Grants: {plan.featuredFunder.annualGrants}</div>}
                   <div style={{fontSize:13,color:C.text,marginTop:10,lineHeight:1.6}}>{plan.featuredFunder.connection}</div>
                 </div>
                 <div style={{textAlign:"right",minWidth:120}}>
-                  <div style={{fontSize:11,color:C.muted,textTransform:"uppercase"}}>Ask Range</div>
-                  <div style={{fontSize:20,fontWeight:800,color:C.navy,marginTop:2}}>{plan.featuredFunder.askRange}</div>
+                  <div style={{fontSize:10.5,color:C.muted,textTransform:"uppercase",letterSpacing:0.5}}>Ask Range</div>
+                  <div style={{fontSize:20,fontWeight:800,color:C.gold,marginTop:2}}>{plan.featuredFunder.askRange}</div>
                   <div style={{marginTop:8}}><span style={badge("amber")}>{plan.featuredFunder.status||"Prospect"}</span></div>
                 </div>
               </div>
               {plan.featuredFunder.strategyNote&&(
-                <div style={{marginTop:16,padding:"12px 16px",background:"rgba(255,255,255,0.7)",borderRadius:8,fontSize:13,color:C.navy,lineHeight:1.6}}>
-                  <strong>Strategy:</strong> {plan.featuredFunder.strategyNote}
+                <div style={{marginTop:16,padding:"12px 16px",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,fontSize:13,color:C.text,lineHeight:1.6}}>
+                  <strong style={{color:C.gold}}>Strategy:</strong> {plan.featuredFunder.strategyNote}
                 </div>
               )}
             </div>
@@ -317,8 +369,8 @@ function DailyPlan({profile,funders,events}){
             {/* Messaging */}
             {plan.messaging&&(
               <div style={card({marginBottom:0})}>
-                <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.navy}}>💬 Today's Messaging</div>
-                <div style={{fontSize:13,lineHeight:1.7,color:C.text,marginBottom:12,padding:"12px 14px",background:C.blueL,borderRadius:8,fontStyle:"italic"}}>"{plan.messaging.core}"</div>
+                <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.text}}>💬 Today's Messaging</div>
+                <div style={{fontSize:13,lineHeight:1.7,color:C.text,marginBottom:12,padding:"12px 14px",background:"rgba(59,130,246,0.08)",border:"1px solid rgba(59,130,246,0.15)",borderRadius:8,fontStyle:"italic"}}>"{plan.messaging.core}"</div>
                 {plan.messaging.themes?.map((t,i)=>(
                   <div key={i} style={{fontSize:13,color:C.text,padding:"8px 0",borderBottom:`1px solid ${C.border}`,lineHeight:1.5}}>
                     <span style={{color:C.gold,fontWeight:700}}>◆ </span>{t}
@@ -330,10 +382,10 @@ function DailyPlan({profile,funders,events}){
             {/* 7-Day Sprint */}
             {plan.sprint&&(
               <div style={card({marginBottom:0})}>
-                <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.navy}}>🏃 7-Day Sprint</div>
+                <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.text}}>🏃 7-Day Sprint</div>
                 {plan.sprint.map((item,i)=>(
                   <div key={i} style={{display:"flex",gap:12,padding:"8px 0",borderBottom:`1px solid ${C.border}`}}>
-                    <div style={{width:24,height:24,borderRadius:"50%",background:C.navy,color:C.gold,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>{i+1}</div>
+                    <div style={{width:24,height:24,borderRadius:"50%",background:`rgba(212,168,67,0.12)`,color:C.gold,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0,border:`1px solid rgba(212,168,67,0.2)`}}>{i+1}</div>
                     <div style={{fontSize:13,color:C.text,lineHeight:1.5}}>{item}</div>
                   </div>
                 ))}
@@ -344,14 +396,14 @@ function DailyPlan({profile,funders,events}){
           {/* Deadlines */}
           {plan.deadlines?.length>0&&(
             <div style={card()}>
-              <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.navy}}>⏰ Active Deadlines</div>
+              <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.text}}>⏰ Active Deadlines</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12}}>
                 {plan.deadlines.map((d,i)=>{
                   const dc=d.daysOut<=7?"red":d.daysOut<=21?"amber":"green";
                   return (
                     <div key={i} style={{padding:16,borderRadius:10,background:dc==="red"?C.redL:dc==="amber"?C.amberL:C.greenL,border:`1px solid ${dc==="red"?C.red:dc==="amber"?C.amber:C.green}`}}>
                       <div style={{fontSize:28,fontWeight:900,color:dc==="red"?C.red:dc==="amber"?C.amber:C.green}}>{d.daysOut}d</div>
-                      <div style={{fontSize:13,fontWeight:700,color:C.navy,marginTop:4}}>{d.name}</div>
+                      <div style={{fontSize:13,fontWeight:700,color:C.text,marginTop:4}}>{d.name}</div>
                       <div style={{fontSize:12,color:C.muted,marginTop:2}}>{d.action}</div>
                     </div>
                   );
@@ -363,7 +415,7 @@ function DailyPlan({profile,funders,events}){
           {/* Assets */}
           {plan.assets?.length>0&&(
             <div style={card()}>
-              <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.navy}}>🚀 Assets to Deploy Today</div>
+              <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.text}}>🚀 Assets to Deploy Today</div>
               {plan.assets.map((a,i)=>(
                 <div key={i} style={{display:"flex",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
                   <span style={{color:C.gold,fontSize:16}}>▶</span>
@@ -391,36 +443,39 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
   const alignColor = brief.alignment?.score==="strong"?C.green:brief.alignment?.score==="moderate"?C.amber:C.red;
   const alignBg = brief.alignment?.score==="strong"?C.greenL:brief.alignment?.score==="moderate"?C.amberL:C.redL;
   const Section = ({title, children}) => (
-    <div style={{marginBottom:20}}>
-      <div style={{fontWeight:700,fontSize:13,color:C.navy,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>{title}</div>
+    <div style={{marginBottom:24}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+        <div style={{width:3,height:16,background:C.gold,borderRadius:2}}/>
+        <div style={{fontWeight:700,fontSize:11,color:C.text,textTransform:"uppercase",letterSpacing:"0.09em"}}>{title}</div>
+      </div>
       {children}
     </div>
   );
-  const Pill = ({text,color}) => <span style={{display:"inline-block",background:color+"22",color,border:`1px solid ${color}44`,borderRadius:20,padding:"3px 12px",fontSize:12,fontWeight:600,marginRight:6,marginBottom:6}}>{text}</span>;
-  const Row = ({label,value}) => value ? <div style={{display:"flex",gap:8,marginBottom:6,fontSize:13}}><span style={{color:C.muted,minWidth:120,flexShrink:0}}>{label}</span><span style={{color:C.text,fontWeight:500}}>{value}</span></div> : null;
+  const Pill = ({text,color}) => <span style={{display:"inline-block",background:color+"18",color,border:`1px solid ${color}38`,borderRadius:20,padding:"4px 13px",fontSize:11.5,fontWeight:600,marginRight:6,marginBottom:6,letterSpacing:0.1}}>{text}</span>;
+  const Row = ({label,value}) => value ? <div style={{display:"flex",gap:10,marginBottom:7,fontSize:13}}><span style={{color:C.muted,minWidth:130,flexShrink:0,fontSize:12}}>{label}</span><span style={{color:C.text,fontWeight:500,lineHeight:1.5}}>{value}</span></div> : null;
 
   return (
-    <div style={{position:"fixed",inset:0,background:"rgba(10,15,30,0.7)",zIndex:1000,display:"flex",alignItems:"flex-start",justifyContent:"center",overflowY:"auto",padding:"40px 16px"}}>
-      <div style={{background:C.white,borderRadius:16,width:"100%",maxWidth:760,boxShadow:"0 24px 80px rgba(0,0,0,0.3)"}}>
+    <div style={{position:"fixed",inset:0,background:"rgba(6,10,20,0.78)",backdropFilter:"blur(6px)",zIndex:1000,display:"flex",alignItems:"flex-start",justifyContent:"center",overflowY:"auto",padding:"40px 16px"}}>
+      <div style={{background:C.surfaceL,borderRadius:20,border:`1px solid ${C.borderStr}`,width:"100%",maxWidth:780,boxShadow:"0 32px 100px rgba(0,0,0,0.7)",animation:"fadeIn 0.2s ease"}}>
         {/* Header */}
-        <div style={{background:`linear-gradient(135deg,${C.navy},${C.navyXL})`,borderRadius:"16px 16px 0 0",padding:"24px 28px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div style={{background:`linear-gradient(135deg,${C.navyDeep} 0%,${C.navyXL} 100%)`,borderRadius:"20px 20px 0 0",padding:"26px 32px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div>
-            <div style={{fontSize:11,color:C.gold,fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:4}}>Competitive Intelligence Brief</div>
-            <div style={{fontSize:20,fontWeight:800,color:C.white}}>{funderName}</div>
+            <div style={{fontSize:10,color:C.gold,fontWeight:700,letterSpacing:"0.14em",textTransform:"uppercase",marginBottom:5}}>Competitive Intelligence Brief</div>
+            <div style={{fontSize:21,fontWeight:800,color:C.white,letterSpacing:-0.3}}>{funderName}</div>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{background:alignBg,border:`2px solid ${alignColor}`,borderRadius:8,padding:"6px 16px",textAlign:"center"}}>
-              <div style={{fontSize:10,color:alignColor,fontWeight:700,textTransform:"uppercase"}}>Alignment</div>
-              <div style={{fontSize:16,color:alignColor,fontWeight:800,textTransform:"capitalize"}}>{brief.alignment?.score}</div>
+            <div style={{background:"rgba(255,255,255,0.08)",border:`1.5px solid ${alignColor}66`,borderRadius:10,padding:"8px 18px",textAlign:"center",backdropFilter:"blur(4px)"}}>
+              <div style={{fontSize:9.5,color:alignColor,fontWeight:700,textTransform:"uppercase",letterSpacing:0.8}}>Alignment</div>
+              <div style={{fontSize:17,color:alignColor,fontWeight:800,textTransform:"capitalize",marginTop:1}}>{brief.alignment?.score}</div>
             </div>
-            <button onClick={onClose} style={{background:"rgba(255,255,255,0.15)",border:"none",color:C.white,borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:14,fontWeight:600}}>✕ Close</button>
+            <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",color:"rgba(255,255,255,0.9)",borderRadius:9,padding:"9px 16px",cursor:"pointer",fontSize:13,fontWeight:600,letterSpacing:0.2}}>✕ Close</button>
           </div>
         </div>
 
-        <div style={{padding:"28px 28px 32px"}}>
+        <div style={{padding:"30px 32px 36px"}}>
           {/* Executive Summary */}
           {brief.executiveSummary && (
-            <div style={{background:C.blueL,border:`1px solid ${C.blue}44`,borderRadius:10,padding:16,marginBottom:24,fontSize:14,lineHeight:1.7,color:C.navy,fontStyle:"italic"}}>
+            <div style={{background:"rgba(59,130,246,0.07)",border:`1px solid rgba(59,130,246,0.15)`,borderLeft:`3px solid ${C.blue}`,borderRadius:12,padding:"16px 20px",marginBottom:26,fontSize:13.5,lineHeight:1.75,color:C.text,fontStyle:"italic"}}>
               "{brief.executiveSummary}"
             </div>
           )}
@@ -476,8 +531,8 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
           <Section title="✍️ Messaging Blueprint">
             {brief.messagingBlueprint?.openingHook && (
               <div style={{background:C.goldL,border:`1px solid ${C.gold}`,borderRadius:8,padding:14,marginBottom:14}}>
-                <div style={{fontSize:11,fontWeight:700,color:C.goldD,textTransform:"uppercase",marginBottom:6}}>Opening Hook — Copy This</div>
-                <div style={{fontSize:14,color:C.navy,lineHeight:1.7,fontStyle:"italic"}}>"{brief.messagingBlueprint.openingHook}"</div>
+                <div style={{fontSize:11,fontWeight:700,color:C.gold,textTransform:"uppercase",marginBottom:6,letterSpacing:0.8}}>Opening Hook — Copy This</div>
+                <div style={{fontSize:14,color:C.text,lineHeight:1.7,fontStyle:"italic"}}>"{brief.messagingBlueprint.openingHook}"</div>
               </div>
             )}
             {brief.messagingBlueprint?.framingStrategy && (
@@ -487,13 +542,13 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
             <Row label="Tone" value={brief.messagingBlueprint?.toneGuidance}/>
             {brief.messagingBlueprint?.keyPhrases?.length>0 && (
               <div style={{marginTop:10}}>
-                <div style={{fontSize:12,fontWeight:700,color:C.navy,marginBottom:8}}>KEY PHRASES TO USE:</div>
+                <div style={{fontSize:12,fontWeight:700,color:C.text,marginBottom:8}}>KEY PHRASES TO USE:</div>
                 <div>{brief.messagingBlueprint.keyPhrases.map((p,i)=><Pill key={i} text={p} color={C.green}/>)}</div>
               </div>
             )}
             {brief.messagingBlueprint?.metricsToLead?.length>0 && (
               <div style={{marginTop:10}}>
-                <div style={{fontSize:12,fontWeight:700,color:C.navy,marginBottom:8}}>LEAD WITH THESE METRICS:</div>
+                <div style={{fontSize:12,fontWeight:700,color:C.text,marginBottom:8}}>LEAD WITH THESE METRICS:</div>
                 <div>{brief.messagingBlueprint.metricsToLead.map((m,i)=><Pill key={i} text={m} color={C.blue}/>)}</div>
               </div>
             )}
@@ -526,7 +581,7 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
                 <Row label="Preferred Org Type" value={brief.donorPreferences?.preferredOrgCharacteristics}/>
               </div>
               {brief.donorPreferences?.topFundingPatterns && (
-                <div style={{marginTop:10,padding:"12px 14px",background:C.blueL,borderRadius:8,fontSize:13,color:C.navy,lineHeight:1.6}}>
+                <div style={{marginTop:10,padding:"12px 14px",background:C.blueL,borderRadius:8,fontSize:13,color:C.text,lineHeight:1.6}}>
                   <strong>Top Funding Patterns:</strong> {brief.donorPreferences.topFundingPatterns}
                 </div>
               )}
@@ -568,7 +623,7 @@ function CompetitiveBriefModal({brief, funderName, onClose}){
               )}
               {brief.boardProfile?.messagingHooks?.length > 0 && (
                 <div style={{marginTop:8}}>
-                  <div style={{fontSize:12,fontWeight:700,color:C.navy,marginBottom:8}}>LEADERSHIP-TAILORED MESSAGING HOOKS:</div>
+                  <div style={{fontSize:12,fontWeight:700,color:C.text,marginBottom:8}}>LEADERSHIP-TAILORED MESSAGING HOOKS:</div>
                   {brief.boardProfile.messagingHooks.map((h,i)=>(
                     <div key={i} style={{display:"flex",gap:10,marginBottom:8,padding:"10px 12px",background:C.bg,borderRadius:8,borderLeft:`3px solid ${C.gold}`}}>
                       <span style={{color:C.gold,fontWeight:800,fontSize:14,flexShrink:0}}>→</span>
@@ -651,7 +706,7 @@ function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
       });
       const data=await res.json();
       if(data.brief){ setActiveBrief(data.brief); setBriefFunderName(f.name); }
-    }catch(e){ alert("Analysis failed. Please try again."); }
+    }catch(e){ const msg=e?.message||"Unknown error"; alert("Analysis failed: "+msg+"\n\nCheck that your ANTHROPIC_API_KEY is configured in Vercel → Settings → Environment Variables (all environments)."); }
     setAnalyzing(null);
   };
 
@@ -679,12 +734,12 @@ function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
       {/* Discovered funders */}
       {discovered.length>0&&(
         <div style={card({background:C.goldL,border:`1px solid ${C.gold}`,marginBottom:20})}>
-          <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.navy}}>🌟 Newly Discovered Funders</div>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:12,color:C.text}}>🌟 Newly Discovered Funders</div>
           {discovered.map((f,i)=>(
             <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",padding:"12px 0",borderBottom:`1px solid ${C.gold}`,gap:12}}>
               <div style={{flex:1}}>
-                <div style={{fontWeight:700,fontSize:14,color:C.navy}}>{f.name}</div>
-                <div style={{fontSize:12,color:C.navyL,marginTop:2}}>{f.type} · {f.askRange}</div>
+                <div style={{fontWeight:700,fontSize:14,color:C.text}}>{f.name}</div>
+                <div style={{fontSize:12,color:C.mutedL,marginTop:2}}>{f.type} · {f.askRange}</div>
                 <div style={{fontSize:12,color:C.text,marginTop:4}}>{f.notes}</div>
               </div>
               <button style={btn("primary",{padding:"6px 14px",fontSize:12,flexShrink:0})} onClick={()=>addDiscovered(f)}>Add to Pipeline</button>
@@ -696,7 +751,7 @@ function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
       {/* Add form */}
       {showAdd&&(
         <div style={card({marginBottom:20,border:`2px solid ${C.gold}`})}>
-          <div style={{fontWeight:700,fontSize:15,marginBottom:16,color:C.navy}}>Add New Funder</div>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:16,color:C.text}}>Add New Funder</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
             <div><span style={label}>Funder Name *</span><input style={input()} value={newF.name} onChange={e=>setNewF(p=>({...p,name:e.target.value}))} placeholder="Foundation name"/></div>
             <div><span style={label}>Type</span>
@@ -730,32 +785,41 @@ function FundersPipeline({funders,setFunders,setTasks,tasks,profile}){
       {filtered.map(f=>{
         const d=f.deadline?daysUntil(f.deadline):null;
         const dc=d===null?"blue":d<=7?"red":d<=21?"amber":"green";
+        const prioColor=f.priority==="high"?C.red:f.priority==="medium"?C.amber:C.blue;
+        const stageBadge=f.stage==="won"?"green":f.stage==="lost"?"red":f.stage==="submitted"?"green":f.stage==="active"?"amber":"blue";
         return (
-          <div key={f.id} style={card({marginBottom:12,borderLeft:`4px solid ${f.priority==="high"?C.red:f.priority==="medium"?C.amber:C.blue}`})}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:12,flexWrap:"wrap"}}>
-              <div style={{flex:1}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
-                  <span style={{fontSize:15,fontWeight:700,color:C.navy}}>{f.name}</span>
-                  <span style={badge(f.stage==="won"?"green":f.stage==="lost"?"red":f.stage==="submitted"?"green":f.stage==="active"?"amber":"blue")}>{f.stage}</span>
-                  {f.catholic&&<span style={badge("blue")}>⛪ Catholic</span>}
+          <div key={f.id} style={card({
+            marginBottom:10,padding:"18px 20px",
+            borderLeft:`3px solid ${prioColor}`,
+            transition:"box-shadow 0.15s, transform 0.15s",
+          })}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:16,flexWrap:"wrap"}}>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:5,flexWrap:"wrap"}}>
+                  <span style={{fontSize:14.5,fontWeight:700,color:C.text,letterSpacing:-0.2}}>{f.name}</span>
+                  <span style={badge(stageBadge)}>{f.stage}</span>
+                  {f.catholic&&<span style={{...badge("blue"),background:"rgba(26,61,122,0.07)"}}>⛪ Catholic</span>}
+                  {f.ask&&<span style={{fontSize:11.5,color:C.gold,fontWeight:700,background:C.goldL,border:`1px solid rgba(212,168,67,0.25)`,borderRadius:6,padding:"2px 8px"}}>{f.ask}</span>}
                 </div>
-                <div style={{fontSize:12,color:C.muted,marginBottom:4}}>{f.type} · Ask: {f.ask||"TBD"}{f.contact?" · "+f.contact:""}</div>
-                {f.notes&&<div style={{fontSize:13,color:C.text,lineHeight:1.5}}>{f.notes}</div>}
+                <div style={{fontSize:11.5,color:C.muted,marginBottom:f.notes?6:0}}>
+                  {f.type}{f.contact&&<span> · {f.contact}</span>}
+                </div>
+                {f.notes&&<div style={{fontSize:12.5,color:C.text,lineHeight:1.6,opacity:0.82}}>{f.notes}</div>}
               </div>
-              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8,flexShrink:0}}>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:7,flexShrink:0}}>
                 {f.deadline&&<span style={badge(dc)}>{d===0?"DUE TODAY":d<0?`${Math.abs(d)}d overdue`:`${d}d · ${fmtDate(f.deadline)}`}</span>}
-                <select style={{...input({width:"auto",padding:"4px 8px",fontSize:12}),cursor:"pointer"}} value={f.stage} onChange={e=>updateStage(f.id,e.target.value)}>
+                <select style={{...input({width:"auto",padding:"5px 8px",fontSize:11.5}),cursor:"pointer",borderRadius:7}} value={f.stage} onChange={e=>updateStage(f.id,e.target.value)}>
                   {stages.map(s=><option key={s} value={s}>{s}</option>)}
                 </select>
                 <button
-                  style={{...btn("navy",{padding:"5px 12px",fontSize:12}),opacity:analyzing===f.id?0.6:1}}
+                  style={{...btn("navy",{padding:"6px 14px",fontSize:11.5}),opacity:analyzing===f.id?0.6:1,minWidth:100}}
                   onClick={()=>analyzeFunder(f)}
                   disabled={analyzing===f.id}
                   title="Run competitive intelligence analysis using 990-PF data + AI"
                 >
                   {analyzing===f.id?"⏳ Analyzing...":"🧠 Analyze"}
                 </button>
-                <button style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:12}} onClick={()=>deleteFunder(f.id)}>✕ Remove</button>
+                <button style={{background:"none",border:"none",color:"rgba(100,116,139,0.5)",cursor:"pointer",fontSize:11,letterSpacing:0.2}} onClick={()=>deleteFunder(f.id)}>✕ Remove</button>
               </div>
             </div>
           </div>
@@ -802,7 +866,7 @@ function CalendarView({events,setEvents}){
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
             <div style={{display:"flex",alignItems:"center",gap:12}}>
               <button style={btn("outline",{padding:"6px 12px"})} onClick={prev}>‹</button>
-              <div style={{fontSize:18,fontWeight:700,color:C.navy,minWidth:200,textAlign:"center"}}>{monthName}</div>
+              <div style={{fontSize:18,fontWeight:700,color:C.text,minWidth:200,textAlign:"center"}}>{monthName}</div>
               <button style={btn("outline",{padding:"6px 12px"})} onClick={next}>›</button>
             </div>
             <button style={btn("primary")} onClick={()=>setShowAdd(true)}>+ Add Event</button>
@@ -810,25 +874,25 @@ function CalendarView({events,setEvents}){
         </div>
 
         {/* Calendar grid */}
-        <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:"0 0 12px 12px",overflow:"hidden",marginBottom:20}}>
+        <div style={{background:C.surfaceL,border:`1px solid ${C.border}`,borderRadius:"0 0 12px 12px",overflow:"hidden",marginBottom:20}}>
           {/* Day headers */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",background:C.navy}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",background:"rgba(255,255,255,0.03)",borderBottom:`1px solid ${C.border}`}}>
             {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d=>(
-              <div key={d} style={{padding:"10px 0",textAlign:"center",fontSize:12,fontWeight:700,color:"#aabbd4"}}>{d}</div>
+              <div key={d} style={{padding:"10px 0",textAlign:"center",fontSize:11,fontWeight:700,color:C.muted,letterSpacing:0.5}}>{d}</div>
             ))}
           </div>
           {/* Day cells */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
             {Array(firstDay).fill(null).map((_,i)=>(
-              <div key={"e"+i} style={{minHeight:80,borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,background:"#fafafa"}}/>
+              <div key={"e"+i} style={{minHeight:80,borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,background:"transparent"}}/>
             ))}
             {Array(daysInMonth).fill(null).map((_,i)=>{
               const day=i+1;
               const dayEvents=eventsOnDay(day);
               const isToday=new Date().getDate()===day&&new Date().getMonth()===m&&new Date().getFullYear()===y;
               return (
-                <div key={day} style={{minHeight:80,padding:6,borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,background:isToday?C.goldL:""}}>
-                  <div style={{fontSize:12,fontWeight:isToday?800:500,color:isToday?C.goldD:C.muted,marginBottom:4}}>{day}</div>
+                <div key={day} style={{minHeight:80,padding:6,borderRight:`1px solid ${C.border}`,borderBottom:`1px solid ${C.border}`,background:isToday?"rgba(212,168,67,0.08)":"transparent"}}>
+                  <div style={{fontSize:12,fontWeight:isToday?800:500,color:isToday?C.gold:C.muted,marginBottom:4}}>{day}</div>
                   {dayEvents.map(e=>(
                     <div key={e.id} style={{fontSize:10,fontWeight:600,padding:"2px 5px",borderRadius:4,marginBottom:2,background:e.color||C.blue,color:C.white,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}} title={e.title}>
                       {e.title}
@@ -864,7 +928,7 @@ function CalendarView({events,setEvents}){
 
       {/* Upcoming sidebar */}
       <div style={card({height:"fit-content",position:"sticky",top:0})}>
-        <div style={{fontWeight:700,fontSize:15,marginBottom:16,color:C.navy}}>Upcoming</div>
+        <div style={{fontWeight:700,fontSize:15,marginBottom:16,color:C.text}}>Upcoming</div>
         {upcoming.map(e=>{
           const d=daysUntil(e.date);
           const dc=d<=7?"red":d<=21?"amber":"green";
@@ -952,7 +1016,7 @@ function TasksView({tasks,setTasks,funders}){
 
       {Object.entries(groups).map(([group,gtasks])=>(
         <div key={group} style={card({marginBottom:16})}>
-          <div style={{fontWeight:700,fontSize:14,color:C.navy,marginBottom:12,paddingBottom:8,borderBottom:`2px solid ${C.gold}`}}>{group} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({gtasks.filter(t=>!t.done).length} open)</span></div>
+          <div style={{fontWeight:700,fontSize:14,color:C.text,marginBottom:12,paddingBottom:8,borderBottom:`2px solid ${C.gold}`}}>{group} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({gtasks.filter(t=>!t.done).length} open)</span></div>
           {gtasks.map(t=>{
             const d=t.due?daysUntil(t.due):null;
             const dc=d===null?"blue":d<=0?"red":d<=7?"red":d<=14?"amber":"green";
@@ -1017,7 +1081,7 @@ function WritingStudio({profile,funders}){
         {/* Controls */}
         <div>
           <div style={card()}>
-            <div style={{fontWeight:700,fontSize:15,marginBottom:16,color:C.navy}}>Document Settings</div>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:16,color:C.text}}>Document Settings</div>
             <div style={{marginBottom:12}}>
               <span style={label}>Select Funder</span>
               <select style={input()} value={funder} onChange={e=>setFunder(e.target.value)}>
@@ -1043,7 +1107,7 @@ function WritingStudio({profile,funders}){
           </div>
 
           <div style={card()}>
-            <div style={{fontWeight:700,fontSize:13,marginBottom:10,color:C.navy}}>Quick Generate</div>
+            <div style={{fontWeight:700,fontSize:13,marginBottom:10,color:C.text}}>Quick Generate</div>
             {[
               {label:"CFA Eligibility Form",funder:"Community Foundation of Acadiana",doc:"LOI"},
               {label:"Myers Alignment Memo",funder:"Keith & Ginger Myers Family Foundation",doc:"Alignment Memo"},
@@ -1062,14 +1126,14 @@ function WritingStudio({profile,funders}){
           {!output&&!loading&&(
             <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",color:C.muted,textAlign:"center",padding:40}}>
               <div style={{fontSize:48,marginBottom:16}}>✍️</div>
-              <div style={{fontSize:16,fontWeight:700,color:C.navy,marginBottom:8}}>Ready to write</div>
+              <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:8}}>Ready to write</div>
               <div style={{fontSize:14}}>Select a funder and document type, then click Generate.</div>
             </div>
           )}
           {loading&&(
             <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",padding:40}}>
               <div style={{fontSize:40,marginBottom:16}}>✍️</div>
-              <div style={{fontSize:16,fontWeight:700,color:C.navy,marginBottom:8}}>Writing your {docType}...</div>
+              <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:8}}>Writing your {docType}...</div>
               <div style={{fontSize:13,color:C.muted,marginBottom:16}}>Applying your org profile, funder priorities, and grant strategy</div>
               <div style={{width:"100%",height:4,background:C.border,borderRadius:2,overflow:"hidden"}}>
                 <div style={{height:"100%",width:"60%",background:C.gold,borderRadius:2}}/>
@@ -1079,7 +1143,7 @@ function WritingStudio({profile,funders}){
           {output&&(
             <div style={{flex:1,display:"flex",flexDirection:"column"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-                <div style={{fontSize:15,fontWeight:700,color:C.navy}}>{docType} — {funder}</div>
+                <div style={{fontSize:15,fontWeight:700,color:C.text}}>{docType} — {funder}</div>
                 <div style={{display:"flex",gap:8}}>
                   <button style={btn("outline",{fontSize:12,padding:"6px 12px"})} onClick={copy}>{copied?"✓ Copied!":"Copy Text"}</button>
                   <button style={btn("primary",{fontSize:12,padding:"6px 12px"})} onClick={generate}>Regenerate</button>
@@ -1123,13 +1187,13 @@ function Portfolio({profile}){
 
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
         <div style={card({marginBottom:0})}>
-          <div style={{fontWeight:700,fontSize:15,color:C.navy,marginBottom:12}}>Our Mission</div>
+          <div style={{fontWeight:700,fontSize:15,color:C.text,marginBottom:12}}>Our Mission</div>
           <div style={{fontSize:14,lineHeight:1.8,color:C.text}}>{profile.mission}</div>
           {profile.canonicalStatus&&<div style={{marginTop:12,padding:"10px 14px",background:C.blueL,borderRadius:8,fontSize:12,color:C.blue}}><strong>Canonical Status:</strong> {profile.canonicalStatus}</div>}
         </div>
 
         <div style={card({marginBottom:0})}>
-          <div style={{fontWeight:700,fontSize:15,color:C.navy,marginBottom:12}}>Impact by the Numbers</div>
+          <div style={{fontWeight:700,fontSize:15,color:C.text,marginBottom:12}}>Impact by the Numbers</div>
           {[
             {n:profile.families+"+",l:"Families Served Weekly"},
             {n:profile.mealsWeekly,l:"Hot Meals Every Thursday"},
@@ -1139,14 +1203,14 @@ function Portfolio({profile}){
           ].map(({n,l})=>(
             <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}>
               <span style={{fontSize:13,color:C.text}}>{l}</span>
-              <span style={{fontSize:16,fontWeight:800,color:C.navy}}>{n}</span>
+              <span style={{fontSize:16,fontWeight:800,color:C.text}}>{n}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div style={card()}>
-        <div style={{fontWeight:700,fontSize:15,color:C.navy,marginBottom:16}}>Programs & Apostolates</div>
+        <div style={{fontWeight:700,fontSize:15,color:C.text,marginBottom:16}}>Programs & Apostolates</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
           {programs.map((p,i)=>(
             <div key={i} style={{padding:"12px 14px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`,fontSize:13,color:C.text}}>
@@ -1157,7 +1221,7 @@ function Portfolio({profile}){
       </div>
 
       <div style={card({background:C.goldL,border:`1px solid ${C.gold}`})}>
-        <div style={{fontWeight:700,fontSize:15,color:C.navy,marginBottom:8}}>Contact & Connect</div>
+        <div style={{fontWeight:700,fontSize:15,color:C.text,marginBottom:8}}>Contact & Connect</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
           <div><span style={{fontSize:12,color:C.muted,display:"block"}}>Director</span><span style={{fontSize:13,fontWeight:600}}>{profile.director}</span></div>
           <div><span style={{fontSize:12,color:C.muted,display:"block"}}>Phone</span><span style={{fontSize:13,fontWeight:600}}>{profile.phone}</span></div>
@@ -1192,11 +1256,11 @@ function DonorHub(){
 
   return (
     <div>
-      <div style={card({background:`linear-gradient(135deg,${C.navy},${C.navyXL})`,color:C.white,marginBottom:20})}>
+      <div style={card({background:`linear-gradient(135deg,#111113,#1a1a1f)`,color:C.white,marginBottom:20,border:`1px solid rgba(255,255,255,0.08)`})}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
           <div>
             <div style={{fontSize:20,fontWeight:800,color:C.gold}}>🤝 Donor Hub</div>
-            <div style={{fontSize:13,color:"#aabbd4",marginTop:4}}>Authentic connections between your mission and the people who fund it. Transparent, real, and relationship-first.</div>
+            <div style={{fontSize:13,color:"rgba(161,161,170,0.75)",marginTop:4}}>Authentic connections between your mission and the people who fund it. Transparent, real, and relationship-first.</div>
           </div>
           <button style={btn("primary")} onClick={()=>setShowAdd(true)}>+ Add Donor Profile</button>
         </div>
@@ -1229,7 +1293,7 @@ function DonorHub(){
           <div key={d.id} style={card({marginBottom:0,borderTop:`3px solid ${d.connected?C.green:C.gold}`})}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
               <div>
-                <div style={{fontSize:15,fontWeight:700,color:C.navy}}>{d.name}</div>
+                <div style={{fontSize:15,fontWeight:700,color:C.text}}>{d.name}</div>
                 <div style={{fontSize:12,color:C.muted,marginTop:2}}>{d.type} · {d.location}</div>
               </div>
               <span style={badge(d.connected?"green":"amber")}>{d.connected?"Connected":"Prospect"}</span>
@@ -1249,7 +1313,7 @@ function DonorHub(){
 
       <div style={card({marginTop:20,background:C.bg,border:`1px dashed ${C.border}`,textAlign:"center",padding:40})}>
         <div style={{fontSize:24,marginBottom:8}}>🌐</div>
-        <div style={{fontSize:15,fontWeight:700,color:C.navy,marginBottom:6}}>GoForth Network — Coming Soon</div>
+        <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:6}}>GoForth Network — Coming Soon</div>
         <div style={{fontSize:13,color:C.muted}}>Donors will be able to discover your mission, follow your live impact feed, and connect directly — all on the GoForth platform.</div>
       </div>
     </div>
@@ -1307,10 +1371,10 @@ function Settings({profile,setProfile,profiles,setProfiles,activeProfileId,setAc
       </div>
 
       <div style={card()}>
-        <div style={{fontWeight:700,fontSize:18,color:C.navy,marginBottom:4}}>Organization Profile</div>
+        <div style={{fontWeight:700,fontSize:18,color:C.text,marginBottom:4}}>Organization Profile</div>
         <div style={{fontSize:13,color:C.muted,marginBottom:20}}>This profile powers all daily plans, grant applications, and AI-generated documents.</div>
 
-        <div style={{fontWeight:700,fontSize:13,color:C.navy,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Organization Identity</div>
+        <div style={{fontWeight:700,fontSize:13,color:C.text,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Organization Identity</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
           {field("name","Organization Name","text","St. Teresa Center...")}
           {field("apostolate","Primary Apostolate","text","Pope John XXIII House...")}
@@ -1320,7 +1384,7 @@ function Settings({profile,setProfile,profiles,setProfiles,activeProfileId,setAc
           {field("diocese","Diocese / Governing Body","text","Diocese of Lafayette")}
         </div>
 
-        <div style={{fontWeight:700,fontSize:13,color:C.navy,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Contact Information</div>
+        <div style={{fontWeight:700,fontSize:13,color:C.text,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Contact Information</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:20}}>
           {field("address","Street Address")}
           {field("city","City")}
@@ -1330,14 +1394,14 @@ function Settings({profile,setProfile,profiles,setProfiles,activeProfileId,setAc
           {field("website","Website")}
         </div>
 
-        <div style={{fontWeight:700,fontSize:13,color:C.navy,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Mission & Programs</div>
+        <div style={{fontWeight:700,fontSize:13,color:C.text,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Mission & Programs</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr",gap:12,marginBottom:20}}>
           {field("mission","Mission Statement","textarea","Describe your organization's core mission...")}
           {field("programs","Programs & Apostolates","textarea","List programs, separated by commas...")}
           {field("canonicalStatus","Canonical / Legal Status","textarea","")}
         </div>
 
-        <div style={{fontWeight:700,fontSize:13,color:C.navy,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Impact Metrics</div>
+        <div style={{fontWeight:700,fontSize:13,color:C.text,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Impact Metrics</div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:12,marginBottom:20}}>
           {field("families","Families Served")}
           {field("volunteers","Active Volunteers")}
@@ -1345,7 +1409,7 @@ function Settings({profile,setProfile,profiles,setProfiles,activeProfileId,setAc
           {field("womenServed","Women Housed (Annual)")}
         </div>
 
-        <div style={{fontWeight:700,fontSize:13,color:C.navy,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Funding Preferences</div>
+        <div style={{fontWeight:700,fontSize:13,color:C.text,marginBottom:12,paddingBottom:6,borderBottom:`2px solid ${C.gold}`}}>Funding Preferences</div>
         <div style={{display:"flex",gap:20,marginBottom:20,flexWrap:"wrap"}}>
           <label style={{display:"flex",alignItems:"center",gap:8,fontSize:13,cursor:"pointer"}}>
             <input type="checkbox" checked={local.catholic||false} onChange={e=>setLocal(p=>({...p,catholic:e.target.checked}))} style={{accentColor:C.navy}}/> Faith-based / Catholic organization
@@ -1425,66 +1489,79 @@ export default function GoForth(){
   const nextDeadline=[...events].filter(e=>daysUntil(e.date)>=0&&e.type==="deadline").sort((a,b)=>daysUntil(a.date)-daysUntil(b.date))[0];
 
   return (
-    <div style={{display:"flex",height:"100vh",fontFamily:"'Inter','Segoe UI',Arial,sans-serif",background:C.bg,color:C.text,overflow:"hidden"}}>
+    <div style={{display:"flex",height:"100dvh",fontFamily:"'Inter','Segoe UI',Arial,sans-serif",background:C.bg,color:C.text,overflow:"hidden",position:"relative"}}>
       {/* Sidebar */}
-      <div style={{width:215,background:C.navy,display:"flex",flexDirection:"column",flexShrink:0}}>
-        <div style={{padding:"22px 18px 16px",borderBottom:`1px solid ${C.navyXL}`}}>
-          <div style={{fontSize:24,fontWeight:900,color:C.gold,letterSpacing:-0.5}}>GoForth</div>
-          <div style={{fontSize:10,color:"#7a8faa",marginTop:2,textTransform:"uppercase",letterSpacing:1}}>Development Platform</div>
+      <div style={{width:224,background:"#0a0a0c",display:"flex",flexDirection:"column",flexShrink:0,borderRight:`1px solid rgba(255,255,255,0.06)`,boxShadow:`4px 0 24px rgba(0,0,0,0.5)`}}>
+        {/* Logo */}
+        <div style={{padding:"26px 20px 18px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:2}}>
+            <div style={{width:34,height:34,borderRadius:10,background:`linear-gradient(135deg,${C.goldBright},${C.gold})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:`0 0 20px rgba(212,168,67,0.3)`}}>
+              <span style={{fontSize:17,fontWeight:900,color:"#111",lineHeight:1}}>G</span>
+            </div>
+            <div>
+              <div style={{fontSize:16,fontWeight:800,color:"#fff",letterSpacing:-0.4,lineHeight:1}}>GoForth</div>
+              <div style={{fontSize:9,color:"rgba(255,255,255,0.25)",marginTop:2,textTransform:"uppercase",letterSpacing:1.4}}>Grant Intelligence</div>
+            </div>
+          </div>
+          <div style={{height:"1px",background:`linear-gradient(90deg,${C.gold}55,transparent)`,marginTop:18}}/>
         </div>
-        <nav style={{flex:1,padding:"10px 0",overflowY:"auto"}}>
+        <nav style={{flex:1,padding:"4px 10px",overflowY:"auto"}}>
           {TABS.map(t=>{
             const active=tab===t.id;
             return (
-              <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 18px",cursor:"pointer",
-                color:active?C.gold:"#b0c0d8",background:active?C.navyL:"transparent",
-                borderLeft:active?`3px solid ${C.gold}`:"3px solid transparent",
-                fontSize:13,fontWeight:active?700:400,transition:"all 0.12s"}}
+              <div key={t.id} style={{
+                display:"flex",alignItems:"center",gap:9,padding:"9px 11px",cursor:"pointer",
+                color:active?"#fff":"rgba(161,161,170,0.75)",
+                background:active?`rgba(212,168,67,0.10)`:"transparent",
+                borderRadius:8,
+                outline:active?`1px solid rgba(212,168,67,0.18)`:"none",
+                fontSize:12.5,fontWeight:active?600:400,transition:"all 0.12s",marginBottom:1}}
                 onClick={()=>setTab(t.id)}>
-                <span style={{fontSize:15}}>{t.icon}</span>
+                <span style={{fontSize:13,opacity:active?1:0.55,width:18,textAlign:"center"}}>{t.icon}</span>
                 {t.label}
-                {t.id==="tasks"&&openTasks>0&&<span style={{marginLeft:"auto",background:C.red,color:C.white,borderRadius:10,fontSize:10,fontWeight:800,padding:"1px 6px"}}>{openTasks}</span>}
+                {t.id==="tasks"&&openTasks>0&&<span style={{marginLeft:"auto",background:C.red,color:"#fff",borderRadius:8,fontSize:9.5,fontWeight:800,padding:"1px 6px",lineHeight:1.5}}>{openTasks}</span>}
               </div>
             );
           })}
         </nav>
-        <div style={{padding:"14px 18px",borderTop:`1px solid ${C.navyXL}`}}>
-          <div style={{fontSize:10,color:"#5a6e8a",textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}}>Active Organization</div>
+        {/* Org switcher */}
+        <div style={{padding:"14px 18px 18px",borderTop:`1px solid rgba(255,255,255,0.05)`}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.22)",textTransform:"uppercase",letterSpacing:1.2,marginBottom:6}}>Active Organization</div>
           {profiles.length>1?(
-            <select style={{width:"100%",background:"transparent",border:`1px solid ${C.navyXL}`,color:"#8a9db8",fontSize:11,borderRadius:6,padding:"4px 6px",cursor:"pointer",marginBottom:4}}
+            <select style={{width:"100%",background:"rgba(255,255,255,0.05)",border:`1px solid rgba(255,255,255,0.09)`,color:"rgba(212,212,216,0.85)",fontSize:11,borderRadius:7,padding:"5px 7px",cursor:"pointer",marginBottom:4}}
               value={profile.id} onChange={e=>setActiveProfileId(e.target.value)}>
-              {profiles.map(p=><option key={p.id} value={p.id} style={{background:C.navy}}>{p.name.slice(0,30)}</option>)}
+              {profiles.map(p=><option key={p.id} value={p.id} style={{background:"#111"}}>{p.name.slice(0,30)}</option>)}
             </select>
           ):(
-            <div style={{fontSize:11,color:"#8a9db8",marginBottom:4}}>{profile.name.slice(0,28)}{profile.name.length>28?"...":""}</div>
+            <div style={{fontSize:11,color:"rgba(161,161,170,0.7)",marginBottom:4,lineHeight:1.4}}>{profile.name.slice(0,28)}{profile.name.length>28?"...":""}</div>
           )}
-          <div style={{fontSize:10,color:"#3a4e68"}}>EIN {profile.ein||"—"}</div>
-          <button style={{marginTop:8,background:"none",border:`1px dashed ${C.navyXL}`,color:"#5a6e8a",borderRadius:6,padding:"4px 10px",fontSize:10,cursor:"pointer",width:"100%"}} onClick={addProfile}>+ Add Organization</button>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.18)",marginBottom:6}}>EIN {profile.ein||"—"}</div>
+          <button style={{background:"rgba(255,255,255,0.04)",border:`1px dashed rgba(255,255,255,0.12)`,color:"rgba(161,161,170,0.55)",borderRadius:7,padding:"5px 10px",fontSize:10,cursor:"pointer",width:"100%",transition:"all 0.13s"}} onClick={addProfile}>+ Add Organization</button>
         </div>
       </div>
 
       {/* Main */}
-      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",position:"relative",zIndex:1}}>
         {/* Top bar */}
-        <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"0 24px",display:"flex",alignItems:"center",justifyContent:"space-between",height:58,flexShrink:0}}>
-          <div style={{fontWeight:700,fontSize:15,color:C.navy}}>
+        <div style={{background:"rgba(9,9,11,0.85)",backdropFilter:"blur(16px)",borderBottom:`1px solid rgba(255,255,255,0.07)`,padding:"0 28px",display:"flex",alignItems:"center",justifyContent:"space-between",height:56,flexShrink:0}}>
+          <div style={{fontWeight:700,fontSize:14,color:"#e4e4e7",letterSpacing:-0.1}}>
             {TABS.find(t=>t.id===tab)?.icon} {TABS.find(t=>t.id===tab)?.label}
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:14}}>
             {nextDeadline&&(
-              <div style={{display:"flex",alignItems:"center",gap:8,padding:"5px 12px",background:daysUntil(nextDeadline.date)<=7?C.redL:C.amberL,borderRadius:20}}>
-                <span style={{fontSize:12,color:daysUntil(nextDeadline.date)<=7?C.red:C.amber}}>⏰</span>
-                <span style={{fontSize:12,fontWeight:600,color:daysUntil(nextDeadline.date)<=7?C.red:C.amber}}>
+              <div style={{display:"flex",alignItems:"center",gap:7,padding:"4px 12px",background:daysUntil(nextDeadline.date)<=7?C.redL:C.amberL,borderRadius:20,border:`1px solid ${daysUntil(nextDeadline.date)<=7?"rgba(239,68,68,0.2)":"rgba(245,158,11,0.2)"}`}}>
+                <span style={{fontSize:11,color:daysUntil(nextDeadline.date)<=7?"#f87171":"#fbbf24"}}>⏰</span>
+                <span style={{fontSize:11.5,fontWeight:700,color:daysUntil(nextDeadline.date)<=7?"#f87171":"#fbbf24"}}>
                   {daysUntil(nextDeadline.date)}d · {nextDeadline.title}
                 </span>
               </div>
             )}
-            <div style={{fontSize:12,color:C.muted}}>{todayFull()}</div>
+            <div style={{fontSize:11,color:C.muted,letterSpacing:0.1}}>{todayFull()}</div>
           </div>
         </div>
 
         {/* Content */}
-        <div style={{flex:1,overflowY:"auto",padding:24}}>
+        <div style={{flex:1,overflowY:"auto",padding:28,WebkitOverflowScrolling:"touch",animation:"fadeIn 0.18s ease",background:C.bg}}>
           {tab==="dashboard"&&<Dashboard profile={profile} funders={funders} tasks={tasks} events={events} setTab={setTab}/>}
           {tab==="daily"&&<DailyPlan profile={profile} funders={funders} events={events}/>}
           {tab==="funders"&&<FundersPipeline funders={funders} setFunders={setFunders} tasks={tasks} setTasks={setTasks} profile={profile}/>}
@@ -1498,13 +1575,28 @@ export default function GoForth(){
       </div>
 
       <style>{`
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 6px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap');
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; font-family: 'Inter', 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; background: #09090b; color: #f4f4f5; }
+        button { touch-action: manipulation; cursor: pointer; font-family: inherit; }
+        a { touch-action: manipulation; }
+        input, select, textarea { font-family: inherit; -webkit-font-smoothing: antialiased; background: rgba(255,255,255,0.04); color: #f4f4f5; border-color: rgba(255,255,255,0.08); }
+        input::placeholder, textarea::placeholder { color: rgba(113,113,122,0.7); }
+        select option { background: #18181b; color: #f4f4f5; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d1d5e0; border-radius: 3px; }
-        @keyframes progress { 0%{width:10%} 50%{width:80%} 100%{width:95%} }
-        select, input, textarea { background: white; }
-        button:hover { opacity: 0.88; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        @keyframes progress { 0%{width:8%} 40%{width:65%} 80%{width:88%} 100%{width:95%} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+        button:hover { opacity: 0.85; }
+        button:active { transform: scale(0.972); opacity: 0.9; }
+        nav > div:hover:not([style*="rgba(212,168,67"]) { background: rgba(255,255,255,0.05) !important; color: rgba(228,228,231,0.9) !important; }
+        @media (max-width: 768px) {
+          button { min-height: 44px; min-width: 44px; }
+        }
       `}</style>
     </div>
   );
