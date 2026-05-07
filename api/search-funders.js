@@ -91,8 +91,8 @@ module.exports = async function handler(req, res) {
     try {
       const [r1, r2, r3] = await Promise.allSettled([
         tavilySearch(`${loc} private foundation grants 990 nonprofit 2025 2026`),
-        tavilySearch(`Louisiana Catholic foundation grants women housing human services Acadiana`),
-        tavilySearch(`community foundation ${loc} competitive grants nonprofits apply`),
+        tavilySearch(`Louisiana Acadiana foundation grants women housing human services food pantry community`),
+        tavilySearch(`community foundation ${loc} competitive grants nonprofits apply 2026`),
       ]);
 
       const snippets = [];
@@ -109,14 +109,15 @@ module.exports = async function handler(req, res) {
     } catch(e) { console.error("Tavily:", e.message); }
   }
 
-  const prompt = `Find 8 real funding opportunities for a nonprofit in ${loc} focused on: ${cause || "Catholic mercy works, women, youth, human services"}.
+  const prompt = `Find 8 real private funding opportunities for a nonprofit in ${loc} focused on: ${cause || "mercy works, women's housing, youth formation, human services, food assistance"}.
 
-Return a mix of local private foundations, community foundations, Catholic funders, and any current grant cycles. Use real funder names with real giving data where available.
+Return a diverse mix: local private foundations, community foundations, faith-based funders (any denomination), family foundations, and national funders with Louisiana presence. Use real funder names with real giving data where available.
 
-Prioritize funders that are:
-- Based in Louisiana or Acadiana region
-- Focused on human services, women's programs, Catholic causes, or community strengthening
-- Currently accepting applications or LOIs in 2026${webContext}`;
+Prioritize funders that:
+- Are private (NOT government grants — no federal, state, or municipal funding)
+- Are based in Louisiana or Acadiana, or fund rural Southern nonprofits nationally
+- Focus on human services, women's programs, food security, housing, youth, or community strengthening
+- Are currently accepting applications or LOIs in 2025-2026${webContext}`;
 
   try {
     const { status, body } = await claudePost({

@@ -232,15 +232,18 @@ ${grantRecipients.length ? "Recent Grant Recipients: " + grantRecipients.join(",
   // ── 2. Tavily intelligence searches ──────────────────────────────────────
   let boardContext = "";
   try {
-    const [r1, r2, r3, r4] = await Promise.allSettled([
+    const [r1, r2, r3, r4, r5, r6] = await Promise.allSettled([
       tavilySearch(`"${funder.name}" grants awarded funded organizations 990 giving history recipients`),
       tavilySearch(`"${funder.name}" grant requirements priorities interests trustees officers how to apply`),
-      tavilySearch(`${funder.name} Louisiana Catholic nonprofit human services women housing community funded`),
+      tavilySearch(`${funder.name} Louisiana nonprofit human services women housing community food funded 2024 2025`),
       tavilySearch(`"${funder.name}" board directors trustees officers executive philanthropic philosophy mission giving vision interview statement`),
+      tavilySearch(`"${funder.name}" site:facebook.com OR site:instagram.com OR site:linkedin.com OR site:twitter.com OR site:x.com`),
+      tavilySearch(`"${funder.name}" foundation website grants apply mission values annual report`),
     ]);
 
     const snippets = [];
     const boardSnippets = [];
+    const socialSnippets = [];
     for (const r of [r1, r2, r3]) {
       if (r.status === "fulfilled" && r.value.status === 200) {
         for (const item of r.value.body?.results || []) {
@@ -253,14 +256,25 @@ ${grantRecipients.length ? "Recent Grant Recipients: " + grantRecipients.join(",
         if (item.content) boardSnippets.push(`SOURCE: ${item.url}\n${item.content.slice(0, 500)}`);
       }
     }
+    if (r5.status === "fulfilled" && r5.value.status === 200) {
+      for (const item of r5.value.body?.results || []) {
+        if (item.content) socialSnippets.push(`SOCIAL [${item.url}]:\n${item.content.slice(0, 600)}`);
+      }
+    }
+    if (r6.status === "fulfilled" && r6.value.status === 200) {
+      for (const item of r6.value.body?.results || []) {
+        if (item.content) snippets.push(`FOUNDATION SITE [${item.url}]:\n${item.content.slice(0, 500)}`);
+      }
+    }
     if (snippets.length) webContext = `\n\nLIVE INTELLIGENCE:\n${snippets.slice(0, 10).join("\n\n---\n")}`;
     if (boardSnippets.length) boardContext = `\n\nBOARD & LEADERSHIP INTELLIGENCE:\n${boardSnippets.slice(0, 6).join("\n\n---\n")}`;
+    if (socialSnippets.length) boardContext += `\n\nSOCIAL MEDIA INTELLIGENCE:\n${socialSnippets.slice(0, 5).join("\n\n---\n")}`;
   } catch (e) {
     console.error("Tavily error:", e.message);
   }
 
   // ── 3. Claude competitive brief synthesis ─────────────────────────────────
-  const prompt = `You are a senior nonprofit development strategist with 20+ years writing winning proposals to private foundations. Analyze this funder and generate a complete competitive intelligence brief. Include detailed donor preference patterns and board/leadership intelligence to help tailor messaging.
+  const prompt = `You are a senior nonprofit development strategist with 20+ years writing winning proposals to private foundations, community foundations, family foundations, and corporate giving programs. Analyze this funder — which may be faith-based, secular, local, or national — and generate a complete competitive intelligence brief. Include detailed donor preference patterns, social media intelligence, and board/leadership insights to help tailor messaging.
 
 APPLICANT ORGANIZATION:
 Name: ${profile?.name || "St. Teresa Center for the Works of Mercy"}
@@ -269,11 +283,12 @@ Location: ${profile?.city || "Saint Martinville"}, ${profile?.state || "LA"} (ru
 Director: ${profile?.director || "Fr. Michael Champagne, CJC"}
 Diocese: ${profile?.diocese || "Diocese of Lafayette"}
 EIN: ${profile?.ein || "81-3756179"}
-Mission: ${profile?.mission || "Catholic mercy works — dignified service to the poor through corporal and spiritual works of mercy"}
+Mission: ${profile?.mission || "Dignified, compassionate service to the poor through corporal and spiritual works of mercy"}
 Programs: ${profile?.programs || "Hot meals (250/Thursday), food pantry (450+ families), women's housing (PJ23), youth formation, wellness center"}
 Impact: ${profile?.families || 450}+ families/week, ${profile?.mealsWeekly || 250} hot meals/week, ${profile?.womenServed || 19} women housed in 2025, ${profile?.volunteers || 120} volunteers
 Overhead: ZERO — 100% volunteer-run
-Structure: Catholic Private Association of the Faithful, canonically governed, Diocese of Lafayette
+Structure: Catholic Private Association of the Faithful (private, not government-funded), Diocese of Lafayette
+NOTE: This org will apply to ANY private funder — Catholic, secular, faith-based, family foundation, or community foundation. Tailor messaging to match what THIS specific funder values, not religious language by default.
 
 TARGET FUNDER: ${funder.name}
 Type: ${funder.type || "Private Foundation"}
@@ -283,7 +298,7 @@ ${proPublicaContext}
 ${webContext}
 ${boardContext}
 
-Generate a complete competitive brief. For donorPreferences, synthesize the 990 giving history and web intelligence into clear patterns a grant writer can act on. For boardProfile, use any leadership intel found — if data is sparse, set dataQuality to "minimal" and still provide messagingHooks based on funder type and mission. Be specific and actionable. Use real language the grant writer can copy directly into their LOI or proposal.`;
+Generate a complete competitive brief. For donorPreferences, synthesize 990 giving history and web intelligence into clear patterns a grant writer can act on. For boardProfile, use any leadership intel found including social media posts, foundation website language, and news mentions — if data is sparse, set dataQuality to "minimal" but still provide messagingHooks. Tailor all messaging to THIS funder's stated values and language, not generic religious framing unless the funder is explicitly faith-focused. Be specific and actionable. Use real language the grant writer can copy directly into their LOI or proposal.`;
 
   try {
     const { status, body } = await claudePost({
