@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restorative Cosmetics — Social Media Kit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --obsidian: #1B1512;
+      --gold: #B8935A;
+      --rosewood: #5B2A35;
+      --bisque: #E3C9AE;
+      --alabaster: #F6F1E7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #2a2520;
+      font-family: 'Manrope', sans-serif;
+      padding: 3rem 2rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      color: var(--gold);
+      font-weight: 300;
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .page-sub {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 3rem;
+    }
+
+    .instructions {
+      background: rgba(184,147,90,0.08);
+      border: 1px solid rgba(184,147,90,0.2);
+      padding: 1.2rem 1.8rem;
+      margin: 0 auto 3.5rem;
+      max-width: 860px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.7;
+    }
+
+    .instructions strong { color: var(--gold); }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin: 4rem auto 1.5rem;
+      max-width: 860px;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* CARD GRID */
+    .grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ─── SQUARE CARD (1080×1080) ─── */
+    .card {
+      width: 400px;
+      height: 400px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ─── STORY CARD (1080×1920 → 225×400) ─── */
+    .story-card {
+      width: 225px;
+      height: 400px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Caption box below each card */
+    .card-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .caption-box {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 1rem 1.2rem;
+      font-size: 0.73rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.75;
+      max-width: 400px;
+    }
+
+    .caption-box .cap-label {
+      font-size: 0.56rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .caption-box p { margin-bottom: 0.6rem; }
+    .caption-box p:last-child { margin-bottom: 0; }
+
+    .hashtags {
+      color: rgba(184,147,90,0.6);
+      font-size: 0.68rem;
+    }
+
+    /* ═══════════════════════════════════
+       CARD DESIGNS
+    ═══════════════════════════════════ */
+
+    /* 1. LAUNCH — dark obsidian */
+    .card-launch {
+      background: var(--obsidian);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2.5rem;
+    }
+
+    .card-launch::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(184,147,90,0.08) 0%, transparent 70%);
+    }
+
+    .kintsugi-mark {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .card-launch .brand {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      position: relative;
+    }
+
+    .card-launch .brand-sub {
+      font-size: 0.52rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .card-launch .tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.6rem;
+      color: #fff;
+      font-weight: 300;
+      line-height: 1.35;
+      position: relative;
+    }
+
+    .card-launch .location {
+      font-size: 0.52rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      position: absolute;
+      bottom: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    /* 2. QUOTE — rosewood tint */
+    .card-quote {
+      background: var(--obsidian);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2.8rem;
+    }
+
+    .card-quote .accent-line {
+      width: 28px;
+      height: 2px;
+      background: var(--gold);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-quote blockquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.3rem;
+      color: #fff;
+      font-weight: 300;
+      line-height: 1.55;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-quote blockquote em { color: var(--gold); font-style: normal; }
+
+    .card-quote .attr {
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* 3. SERVICE CARD — alabaster */
+    .card-service {
+      background: var(--alabaster);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 2.5rem;
+    }
+
+    .card-service .service-num {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 5rem;
+      color: rgba(184,147,90,0.12);
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .card-service .service-tag {
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.7rem;
+    }
+
+    .card-service h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      color: var(--obsidian);
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 0.8rem;
+    }
+
+    .card-service p {
+      font-size: 0.72rem;
+      color: rgba(27,21,18,0.62);
+      line-height: 1.8;
+    }
+
+    .card-service .brand-bug {
+      position: absolute;
+      top: 1.8rem;
+      left: 2rem;
+      font-size: 0.5rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(27,21,18,0.35);
+    }
+
+    /* 4. KINTSUGI PHILOSOPHY */
+    .card-philosophy {
+      background: var(--obsidian);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2.5rem;
+    }
+
+    .card-philosophy .phil-eyebrow {
+      font-size: 0.52rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.8rem;
+    }
+
+    .card-philosophy .phil-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: 300;
+      line-height: 1.45;
+      margin-bottom: 1.8rem;
+    }
+
+    .card-philosophy .phil-rule {
+      width: 30px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 1.2rem;
+      opacity: 0.45;
+    }
+
+    .card-philosophy .phil-brand {
+      font-size: 0.52rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* 5. ABOUT / FOUNDER */
+    .card-about {
+      background: var(--bisque);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 2.5rem;
+    }
+
+    .card-about .years-badge {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      width: 72px;
+      height: 72px;
+      border: 1px solid rgba(27,21,18,0.15);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-about .years-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      color: var(--obsidian);
+      font-weight: 300;
+      line-height: 1;
+    }
+
+    .card-about .years-label {
+      font-size: 0.42rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(27,21,18,0.5);
+      text-align: center;
+    }
+
+    .card-about .about-tag {
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.7rem;
+    }
+
+    .card-about h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 2.4rem;
+      color: var(--obsidian);
+      font-weight: 400;
+      line-height: 1.1;
+      margin-bottom: 0.7rem;
+    }
+
+    .card-about p {
+      font-size: 0.7rem;
+      color: rgba(27,21,18,0.62);
+      line-height: 1.85;
+    }
+
+    /* 6. STORY CARD designs */
+    .story-launch {
+      background: var(--obsidian);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .story-launch .s-eyebrow {
+      font-size: 0.45rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+
+    .story-launch .s-headline {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: #fff;
+      font-weight: 300;
+      line-height: 1.35;
+      margin-bottom: 1.2rem;
+    }
+
+    .story-launch .s-rule {
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+      margin: 0 auto 1.2rem;
+      opacity: 0.5;
+    }
+
+    .story-launch .s-body {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.8;
+    }
+
+    .story-launch .s-cta {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.48rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(184,147,90,0.4);
+      padding: 0.4rem 0.9rem;
+      white-space: nowrap;
+    }
+
+    .print-note {
+      text-align: center;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.2);
+      margin: 4rem auto 1rem;
+      max-width: 860px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Restorative Cosmetics</h1>
+<div class="page-sub">Social Media Kit — Screenshot each card to post</div>
+
+<div class="instructions" style="max-width:860px;margin:0 auto 3.5rem;">
+  <strong>How to use:</strong> Screenshot each card below at your screen's native resolution for a clean post image. Cards are sized for Instagram square (1:1) and Stories (9:16). Copy the caption beneath each card directly into your post. Recommend posting in order: Launch → Philosophy → Services (one per week) → About.
+</div>
+
+<!-- ── POST 1: LAUNCH ──────────────────────────────── -->
+<div class="section-label">Post 1 — Launch Announcement (Instagram / Facebook)</div>
+<div class="grid">
+  <div class="card-wrap">
+    <div class="card card-launch">
+      <div class="kintsugi-mark">
+        <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="40" stroke="#B8935A" stroke-width="1"/>
+          <path d="M50 10 C52 22 44 30 50 45 C56 60 44 68 48 92" stroke="#B8935A" stroke-width="2" stroke-linecap="round"/>
+          <path d="M44 16 L58 16" stroke="#B8935A" stroke-width="0.9" stroke-linecap="round" opacity="0.55"/>
+          <circle cx="49" cy="91" r="2" fill="#B8935A" opacity="0.65"/>
+        </svg>
+      </div>
+      <div class="brand">Restorative Cosmetics</div>
+      <div class="brand-sub">Paramedical Cosmetic Artistry</div>
+      <div class="tagline">"Artistry in<br>Restoration"</div>
+      <div class="location">Saint Martinville, Louisiana · By Bethani</div>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — Launch Post</span>
+      <p>After more than a decade in this craft — training artists around the world — I'm returning to the chair.</p>
+      <p>Restorative Cosmetics is my paramedical practice, built on one belief: that what you were told was permanent, doesn't have to stay that way.</p>
+      <p>Scar camouflage. Stretch mark camouflage. Areola restoration. Vitiligo camouflage. Scalp micropigmentation.</p>
+      <p>Each session is precision work. Each result is yours to keep.</p>
+      <p>Consultations now open → restorativecosmetics.com<br>📞 (337) 249-0405 · Saint Martinville, LA</p>
+      <p class="hashtags">#RestorativeCosmetics #ParamedicalTattoo #ScarCamouflage #AreloaRestoration #VitiligoTattoo #ScalpMicropigmentation #LouisianaArtist #KintsugiBeauty #ArtistryInRestoration</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── POST 2: PHILOSOPHY ─────────────────────────── -->
+<div class="section-label">Post 2 — The Philosophy</div>
+<div class="grid">
+  <div class="card-wrap">
+    <div class="card card-quote">
+      <div class="accent-line"></div>
+      <blockquote>"Restoration is not about hiding what happened. It's about giving skin its <em>dignity</em> back."</blockquote>
+      <div class="attr">— Bethani · Restorative Cosmetics</div>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — Philosophy</span>
+      <p>I've been in this work since 2011. And the one thing that never changes — the thing that keeps me here — is this.</p>
+      <p>My clients don't come to me to erase their stories. They come to reclaim what they feel they lost. And when I can give that back to them — that's the whole point.</p>
+      <p>Paramedical cosmetic artistry. Saint Martinville, Louisiana.</p>
+      <p>Consultations open → link in bio</p>
+      <p class="hashtags">#RestorativeCosmetics #ParamedicalArtist #SkinDignity #ArtistryInRestoration #Kintsugi #ScarHealing #BodyPositive #LouisianaBeauty</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── POST 3–7: SERVICES ─────────────────────────── -->
+<div class="section-label">Posts 3–7 — Service Spotlights (rotate weekly)</div>
+<div class="grid">
+
+  <div class="card-wrap">
+    <div class="card card-service">
+      <div class="brand-bug">Restorative Cosmetics</div>
+      <div class="service-num">I</div>
+      <div class="service-tag">Restorative Discipline No. I</div>
+      <h2>Scar<br>Camouflage</h2>
+      <p>Precision pigment work that softens and blends surgical, traumatic, and self-harm scarring into the surrounding skin tone.</p>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — Scar Camouflage</span>
+      <p>A scar doesn't have to define what you see when you look in the mirror.</p>
+      <p>Scar camouflage is precision paramedical pigmentation — color-matched to your skin, worked into the scar tissue to reduce its visibility and restore evenness to the surface.</p>
+      <p>Surgical scars. Trauma scars. Self-harm scars. Each one approached with the same clinical care and the same quiet respect.</p>
+      <p>Questions? DM me or call (337) 249-0405 · restorativecosmetics.com</p>
+      <p class="hashtags">#ScarCamouflage #ParamedicalTattoo #ScarCoverage #SurgicalScar #SkinRestoration #RestorativeCosmetics #ArtistryInRestoration</p>
+    </div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card card-service">
+      <div class="brand-bug">Restorative Cosmetics</div>
+      <div class="service-num">III</div>
+      <div class="service-tag">Restorative Discipline No. III</div>
+      <h2>Areola<br>Restoration</h2>
+      <p>3D areola-complex pigmentation for post-mastectomy and reconstructive clients — restored with anatomical artistry.</p>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — Areola Restoration</span>
+      <p>For so many of my clients, this is the final step in a journey that asked so much of them.</p>
+      <p>3D areola restoration uses paramedical pigmentation to recreate the areola complex after mastectomy or reconstructive surgery — with color, dimension, and detail that feels real.</p>
+      <p>This work is sacred to me. If you or someone you love is at this stage of their journey, I'd be honored to be part of it.</p>
+      <p>Reach out → (337) 249-0405 · restorativecosmetics.com</p>
+      <p class="hashtags">#AreolaRestoration #ParamedicalTattoo #BreastCancerRecovery #Mastectomy #PostMastectomy #3DAreola #RestorativeCosmetics #BreastCancerAwareness</p>
+    </div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card card-service">
+      <div class="brand-bug">Restorative Cosmetics</div>
+      <div class="service-num">IV</div>
+      <div class="service-tag">Restorative Discipline No. IV</div>
+      <h2>Vitiligo<br>Camouflage</h2>
+      <p>Careful color-matching that restores visual uniformity to depigmented skin with a natural, undetectable finish.</p>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — Vitiligo Camouflage</span>
+      <p>Vitiligo camouflage is some of the most precise color work I do — and some of the most rewarding.</p>
+      <p>The goal isn't to make it look like vitiligo never happened. The goal is to give you a finish that feels like yours — blended, natural, undetectable.</p>
+      <p>If you've been living with vitiligo and wondered if there's an option for you, let's talk.</p>
+      <p>DM or call (337) 249-0405 · restorativecosmetics.com</p>
+      <p class="hashtags">#VitiligoCamouflage #VitiligoAwareness #ParamedicalTattoo #SkinPigmentation #VitiligoTattoo #RestorativeCosmetics #SkinConfidence</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── POST 8: ABOUT / FOUNDER ────────────────────── -->
+<div class="section-label">Post 8 — Founder Story</div>
+<div class="grid">
+  <div class="card-wrap">
+    <div class="card card-about">
+      <div class="years-badge">
+        <div class="years-num">15</div>
+        <div class="years-label">yrs<br>since 2011</div>
+      </div>
+      <div class="about-tag">The Artist Behind the Practice</div>
+      <h2>Bethani</h2>
+      <p>Softap-Trained Master Artist · Saint Martinville, Louisiana<br>Restorative Cosmetics</p>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — About Bethani</span>
+      <p>A little about me, if you're new here.</p>
+      <p>I'm Bethani — a Softap-certified paramedical cosmetic artist who has been in this craft since 2011. For years I've been building the next generation of artists, training technicians around the world in restorative pigmentation.</p>
+      <p>Now I'm back in the chair. And I couldn't be more ready.</p>
+      <p>Restorative Cosmetics is my practice — built on precision, on dignity, and on the belief that skilled hands can give skin its story back.</p>
+      <p>Saint Martinville, Louisiana · By appointment only<br>(337) 249-0405 · restorativecosmetics.com</p>
+      <p class="hashtags">#RestorativeCosmetics #ParamedicalArtist #Bethani #SoftapArtist #LouisianaBeauty #Since2011 #PermanentMakeupArtist #ArtistryInRestoration</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── POST 9: KINTSUGI ───────────────────────────── -->
+<div class="section-label">Post 9 — Kintsugi (Brand Philosophy)</div>
+<div class="grid">
+  <div class="card-wrap">
+    <div class="card card-philosophy">
+      <div class="phil-eyebrow">Kintsugi · 金継ぎ</div>
+      <svg width="44" height="44" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:1.2rem;opacity:0.5;">
+        <circle cx="50" cy="50" r="40" stroke="#B8935A" stroke-width="1"/>
+        <path d="M50 10 C52 22 44 30 50 45 C56 60 44 68 48 92" stroke="#B8935A" stroke-width="2" stroke-linecap="round"/>
+        <path d="M44 16 L58 16" stroke="#B8935A" stroke-width="0.9" stroke-linecap="round" opacity="0.55"/>
+      </svg>
+      <div class="phil-text">"The mend itself becomes the most beautiful part."</div>
+      <div class="phil-rule"></div>
+      <div class="phil-brand">Restorative Cosmetics · restorativecosmetics.com</div>
+    </div>
+    <div class="caption-box">
+      <span class="cap-label">Caption — Kintsugi</span>
+      <p>In Japan, there's an art form called kintsugi — the practice of repairing broken pottery with gold, so that the break itself becomes the most beautiful part of the piece.</p>
+      <p>That's the philosophy at the heart of everything I do.</p>
+      <p>Not hiding. Not erasing. Restoring — with skill, with care, with gold.</p>
+      <p>Restorative Cosmetics · Saint Martinville, Louisiana</p>
+      <p class="hashtags">#Kintsugi #RestorativeCosmetics #ArtistryInRestoration #GoldenRepair #ParamedicalArtist #SkinRestoration #PhilosophyOfBeauty #LouisianaArtist</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── STORY CARDS ────────────────────────────────── -->
+<div class="section-label">Instagram / Facebook Stories (9:16)</div>
+<div class="grid">
+
+  <div class="card-wrap">
+    <div class="story-card story-launch">
+      <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:1rem;position:relative;">
+        <circle cx="50" cy="50" r="40" stroke="#B8935A" stroke-width="1.2"/>
+        <path d="M50 10 C52 22 44 30 50 45 C56 60 44 68 48 92" stroke="#B8935A" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M44 16 L58 16" stroke="#B8935A" stroke-width="1" stroke-linecap="round" opacity="0.55"/>
+        <circle cx="49" cy="91" r="2.2" fill="#B8935A" opacity="0.65"/>
+      </svg>
+      <div class="s-eyebrow">Now Open</div>
+      <div class="s-headline">"Artistry in Restoration"</div>
+      <div class="s-rule"></div>
+      <div class="s-body">Paramedical Cosmetic Artistry<br>by Bethani<br>Saint Martinville, LA</div>
+      <div class="s-cta">Swipe Up · Consult</div>
+    </div>
+    <div class="caption-box" style="max-width:225px;">
+      <span class="cap-label">Story — Launch</span>
+      <p>Use for launch week. Add link sticker to restorativecosmetics.com</p>
+    </div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="story-card" style="background:var(--bisque);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:1.5rem;">
+      <div style="font-size:0.48rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">Services</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:0.85rem;color:var(--obsidian);font-weight:400;line-height:2.2;letter-spacing:0.05em;">
+        Scar Camouflage<br>
+        Stretch Mark Camouflage<br>
+        Areola Restoration<br>
+        Vitiligo Camouflage<br>
+        Scalp Micropigmentation
+      </div>
+      <div style="width:24px;height:1px;background:var(--gold);margin:1rem auto;opacity:0.5;"></div>
+      <div style="font-size:0.48rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(27,21,18,0.4);">By Bethani · Saint Martinville, LA</div>
+      <div style="position:absolute;bottom:1.2rem;left:50%;transform:translateX(-50%);font-size:0.44rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(184,147,90,0.4);padding:0.35rem 0.8rem;white-space:nowrap;">restorativecosmetics.com</div>
+    </div>
+    <div class="caption-box" style="max-width:225px;">
+      <span class="cap-label">Story — Services</span>
+      <p>Great for pinned story highlight. Add "Book" link sticker.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- PROFILE BIO -->
+<div class="section-label">Instagram / Facebook Profile Bio Copy</div>
+<div style="max-width:500px;margin:0 auto 2rem;">
+  <div class="caption-box" style="max-width:500px;">
+    <span class="cap-label">Instagram Bio (150 char limit)</span>
+    <p>Paramedical Cosmetic Artistry ✦ Softap Master Artist<br>Scar · Stretch Mark · Areola · Vitiligo · Scalp<br>In Practice Since 2011 · Saint Martinville, LA<br>👇 restorativecosmetics.com</p>
+  </div>
+</div>
+
+<div style="max-width:500px;margin:0 auto 2rem;">
+  <div class="caption-box" style="max-width:500px;">
+    <span class="cap-label">Facebook Page Description</span>
+    <p>Restorative Cosmetics is the paramedical practice of Bethani Broussard — a Softap-certified master artist in restorative pigmentation since 2011. Specializing in scar camouflage, areola restoration, vitiligo camouflage, stretch mark camouflage, and scalp micropigmentation. Saint Martinville, Louisiana. By appointment only.</p>
+  </div>
+</div>
+
+<div class="print-note">
+  All cards are designed to be screenshotted at your display's native resolution.<br>
+  For best results on a Retina/HiDPI display, zoom to 100% before screenshotting.<br>
+  restorativecosmetics.com · (337) 249-0405
+</div>
+
+</body>
+</html>
